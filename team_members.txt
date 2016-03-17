@@ -1,0 +1,4 @@
+Name			Email			github username
+David Bickford		drb56@pitt.edu		drb56
+John Kulp		jhk32@pitt.edu		SignificantOtter
+Eli Friedman		?			eli-friedman
