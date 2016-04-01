@@ -1,0 +1,17 @@
+users(userID, DOB, email, fname, lname, last_login)
+	pk UserID
+friends(friendID, userID1, userID2, date, status)
+	pk friendID
+	fk userID1 -> userID(users)
+	fk userID2 -> userID(users)
+groups(groupID, name, description, limit)
+	pk groupID
+members(groupID, userID)
+	pk groupID, userID
+	fk groupID -> groups(groupID)
+	fk userID -> users(userID)
+messages(msgID, subject, text, dateSent, senderID, recipientGroupID, recipientUserID )
+	pk msgID
+	fk senderID -> users(UserID)
+	fk recipientGroupID -> members(groupID)
+	fk recipientUserID -> users(userID)
