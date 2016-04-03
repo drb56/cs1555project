@@ -3,55 +3,124 @@ DROP TABLE friends CASCADE CONSTRAINTS;
 DROP TABLE groups CASCADE CONSTRAINTS;
 DROP TABLE members CASCADE CONSTRAINTS;
 DROP TABLE messages CASCADE CONSTRAINTS;
+DROP SEQUENCE users_seq;
+DROP SEQUENCE friends_seq;
+DROP SEQUENCE groups_seq;
+DROP SEQUENCE messages_seq;
 PURGE RECYCLEBIN;
 
-CREATE TABLE users(
-    userID     		NUMBER(10),
-    fname      		VARCHAR2(32),
-    lname      		VARCHAR2(32),
-    email      		VARCHAR2(32),
-    DOB        		DATE,
-    lastLogin     TIMESTAMP,
-    PRIMARY KEY(userID)
+--CREATE USERS TABLE
+CREATE TABLE Users(
+	userID 						NUMBER(10),
+	fname 						VARCHAR2(32),
+	lname 						VARCHAR2(32),
+	email 						VARCHAR2(32),
+	DOB 						DATE,
+	lastLogin 					TIMESTAMP,
+	PRIMARY KEY(userID)
 );
-		
-CREATE TABLE friends(
-		friendID			NUMBER(10),
-		friendDate		TIMESTAMP,
-		friendStatus	NUMBER(1),
-		userID1				NUMBER(10),
-		userID2				NUMBER(10),
+
+--USERS SEQUENCE
+CREATE SEQUENCE users_seq;
+
+--USERS ID AUTOINCREMENT
+CREATE OR REPLACE TRIGGER users_increment 
+BEFORE INSERT ON Users 
+FOR EACH ROW
+
+BEGIN
+  SELECT users_seq.NEXTVAL
+  INTO   :new.userID
+  FROM   dual;
+END;
+/
+
+--CREATE FRIENDS TABLE
+CREATE TABLE Friends(
+		friendID 				NUMBER(10),
+		friendDate 				TIMESTAMP,
+		friendStatus 			NUMBER(1),
+		userID1 				NUMBER(10),
+		userID2 				NUMBER(10),
 		PRIMARY KEY(friendID),
 		FOREIGN KEY(userID1) REFERENCES users(userID),
 		FOREIGN KEY(userID2) REFERENCES users(userID)
 );
 
-CREATE TABLE groups(
-		groupID				NUMBER(10),
-		name					VARCHAR2(32),
-		description		VARCHAR2(32),
-		personLimit		NUMBER(10),
+--FRIENDS SEQUENCE
+CREATE SEQUENCE friends_seq;
+
+--FRIENDS ID AUTOINCREMENT
+CREATE OR REPLACE TRIGGER friends_increment 
+BEFORE INSERT ON Friends 
+FOR EACH ROW
+
+BEGIN
+  SELECT friends_seq.NEXTVAL
+  INTO   :new.friendID
+  FROM   dual;
+END;
+/
+
+--CREATE GROUPS TABLE
+CREATE TABLE Groups(
+		groupID 				NUMBER(10),
+		name 					VARCHAR2(32),
+		description 			VARCHAR2(32),
+		personLimit 			NUMBER(10),
 		PRIMARY KEY(groupID)
 );
 
-CREATE TABLE members(
-		groupID				NUMBER(10),
-		userID				NUMBER(10),
+--GROUPS SEQUENCE
+CREATE SEQUENCE groups_seq;
+
+--GROUPS ID AUTOINCREMENT
+CREATE OR REPLACE TRIGGER groups_increment 
+BEFORE INSERT ON Groups 
+FOR EACH ROW
+
+BEGIN
+  SELECT groups_seq.NEXTVAL
+  INTO   :new.groupID
+  FROM   dual;
+END;
+/
+
+--CREATE MEMBERS TABLE
+CREATE TABLE Members(
+		groupID 				NUMBER(10),
+		userID 					NUMBER(10),
 		PRIMARY KEY(groupID, userID),
 		FOREIGN KEY(groupID) REFERENCES groups(groupID),
 		FOREIGN KEY(userID) REFERENCES users(userID)
 );
 
-CREATE TABLE messages(
-		msgID			NUMBER(10),
-		subject		VARCHAR2(32),
-		msgText		VARCHAR2(1024),
-		dateSent	TIMESTAMP,
-		senderID	NUMBER(10),
-		recipientGroupID		NUMBER(10),
-		recipientUserID			NUMBER(10),
+--CREATE MESSAGES TABLE
+CREATE TABLE Messages(
+		msgID 					NUMBER(10),
+		subject 				VARCHAR2(32),
+		msgText 				VARCHAR2(1024),
+		dateSent 				TIMESTAMP,
+		senderID 				NUMBER(10),
+		recipientGroupID 		NUMBER(10),
+		recipientUserID 		NUMBER(10),
 		PRIMARY KEY(msgID),
 		FOREIGN KEY(senderID) REFERENCES users(userID),
 		FOREIGN KEY(recipientGroupID) REFERENCES groups(groupID),
 		FOREIGN KEY(recipientUserID) REFERENCES users(userID)
 );
+
+--MESSAGES SEQUENCE
+CREATE SEQUENCE messages_seq;
+
+--MESSAGES ID AUTOINCREMENT
+CREATE OR REPLACE TRIGGER messages_increment 
+BEFORE INSERT ON Messages 
+FOR EACH ROW
+
+BEGIN
+  SELECT messages_seq.NEXTVAL
+  INTO   :new.msgID
+  FROM   dual;
+END;
+/
