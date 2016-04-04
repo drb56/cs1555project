@@ -157,7 +157,7 @@ for i in range(300):
 		msg_text,
 		date_sent,
 		sender_id,
-		recipient_user_id
+		recipient_id
 	))
 
 
