@@ -163,7 +163,7 @@ for i in range(300):
 
 
 #set the filename to be this script's directory + inputs.sql
-filename = os.path.dirname(os.path.realpath(__file__)) + "\inputs.sql"
+filename = os.path.dirname(os.path.realpath(__file__)) + "/inputs.sql"
 
 #if the file exists, set it to length 0
 if os.path.exists(filename):
