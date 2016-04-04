@@ -149,22 +149,14 @@ for i in range(300):
 
 	sender_id = random.randint(0, len(insert_users)-1)
 
-	to_group = False if random.random() > .15 else True
-
-	if to_group:
-		recipient_group_id = random.randint(1, len(insert_groups))
-		recipient_user_id = 'NULL'
-	else:
-		recipient_user_id = random.randint(1, len(insert_users))
-		recipient_group_id = 'NULL'
+	recipient_id = random.randint(1, len(insert_users))
 
 
-	messages.append("INSERT INTO Messages VALUES ('{}', '{}', TO_TIMESTAMP('{}', 'YYYY-MM-DD HH24:MI:SS'), {}, {}, {}, NULL);".format(
+	messages.append("INSERT INTO Messages VALUES ('{}', '{}', TO_TIMESTAMP('{}', 'YYYY-MM-DD HH24:MI:SS'), {}, {}, NULL);".format(
 		subject,
 		msg_text,
 		date_sent,
 		sender_id,
-		recipient_group_id,
 		recipient_user_id
 	))
 
