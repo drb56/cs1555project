@@ -70,10 +70,13 @@ for i in range(200):
 
 	key = str(first_user) + " " + str(second_user)
 
-	if key in existing_friendships:
-		existing_friendships.append(key)
-		i-=1
-		continue
+	while key in existing_friendships:
+		first_user = random.randint(1, len(insert_users))
+		second_user = random.randint(1, len(insert_users))
+		key = str(first_user) + " " + str(second_user)
+		
+
+	existing_friendships.append(key)
 
 	year = random.randint(2015, 2016)
 	month = random.randint(1, 12)
@@ -96,11 +99,15 @@ for i in range(200):
 	))
 
 insert_groups = []
+selected_groups = []
 
 for i in range(10):
 
 
 	rand_group = random.randint(0, len(groups)-1)
+	while rand_group in selected_groups:
+		rand_group = random.randint(0, len(groups)-1)
+	selected_groups.append(rand_group)
 	name = groups[rand_group]
 
 	description = "group description " + str(i)
@@ -147,7 +154,7 @@ for i in range(300):
 
 	date_sent = datetime(year, month, day, hour, minute, second)
 
-	sender_id = random.randint(0, len(insert_users)-1)
+	sender_id = random.randint(1, len(insert_users))
 
 	recipient_id = random.randint(1, len(insert_users))
 
