@@ -94,7 +94,8 @@ CREATE TABLE Members(
 		FOREIGN KEY(groupID) REFERENCES groups(groupID),
 		FOREIGN KEY(userID) REFERENCES users(userID)
 );
-
+--here we a assuming that when a user sends a message to a group it sends the message to 
+--everyone within the group
 --CREATE MESSAGES TABLE
 CREATE TABLE Messages(
 		subject 				VARCHAR2(32),
