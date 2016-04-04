@@ -105,8 +105,7 @@ CREATE TABLE Messages(
 		msgID 					NUMBER(10),
 		PRIMARY KEY(msgID),
 		FOREIGN KEY(senderID) REFERENCES users(userID),
-		FOREIGN KEY(recipientGroupID) REFERENCES groups(groupID),
-		FOREIGN KEY(recipientUserID) REFERENCES users(userID)
+		FOREIGN KEY(recipientID) REFERENCES users(userID)
 );
 
 --MESSAGES SEQUENCE
