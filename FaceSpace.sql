@@ -11,12 +11,12 @@ PURGE RECYCLEBIN;
 
 --CREATE USERS TABLE
 CREATE TABLE Users(
+	fname 						VARCHAR2(32) NOT NULL,
+	lname 						VARCHAR2(32) NOT NULL,
+	email 						VARCHAR2(32) NOT NULL,
+	dateOfBirth					DATE NOT NULL,
+	lastLogin 					TIMESTAMP NOT NULL,
 	userID 						NUMBER(10),
-	fname 						VARCHAR2(32),
-	lname 						VARCHAR2(32),
-	email 						VARCHAR2(32),
-	DOB 						DATE,
-	lastLogin 					TIMESTAMP,
 	PRIMARY KEY(userID)
 );
 
@@ -37,11 +37,11 @@ END;
 
 --CREATE FRIENDS TABLE
 CREATE TABLE Friends(
+		friendDate 				TIMESTAMP NOT NULL,
+		friendStatus 			NUMBER(1) NOT NULL,
+		userID1 				NUMBER(10) NOT NULL,
+		userID2 				NUMBER(10) NOT NULL,
 		friendID 				NUMBER(10),
-		friendDate 				TIMESTAMP,
-		friendStatus 			NUMBER(1),
-		userID1 				NUMBER(10),
-		userID2 				NUMBER(10),
 		PRIMARY KEY(friendID),
 		FOREIGN KEY(userID1) REFERENCES users(userID),
 		FOREIGN KEY(userID2) REFERENCES users(userID)
@@ -64,10 +64,10 @@ END;
 
 --CREATE GROUPS TABLE
 CREATE TABLE Groups(
+		name 					VARCHAR2(32) NOT NULL,
+		description 			VARCHAR2(32) NOT NULL,
+		personLimit 			NUMBER(10) NOT NULL,
 		groupID 				NUMBER(10),
-		name 					VARCHAR2(32),
-		description 			VARCHAR2(32),
-		personLimit 			NUMBER(10),
 		PRIMARY KEY(groupID)
 );
 
@@ -97,13 +97,13 @@ CREATE TABLE Members(
 
 --CREATE MESSAGES TABLE
 CREATE TABLE Messages(
-		msgID 					NUMBER(10),
 		subject 				VARCHAR2(32),
 		msgText 				VARCHAR2(1024),
 		dateSent 				TIMESTAMP,
 		senderID 				NUMBER(10),
 		recipientGroupID 		NUMBER(10),
 		recipientUserID 		NUMBER(10),
+		msgID 					NUMBER(10),
 		PRIMARY KEY(msgID),
 		FOREIGN KEY(senderID) REFERENCES users(userID),
 		FOREIGN KEY(recipientGroupID) REFERENCES groups(groupID),
