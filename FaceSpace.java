@@ -13,11 +13,41 @@ public class FaceSpace {
     private String query;  //this will hold the query we are using
 	
 	//constructor of facespace object 
-	public FaceSpace(){
+	public FaceSpace() throws ParseException{
 		createUser("abcde", "abcde", "elkjlkj", "2012-02-24");
-		
+		initiateFriendship("2015-03-10", 0, 1, 2);
 		
 	}
+        
+        public void initiateFriendship(String friendDate, int friendStatus, int userID1, int userID2) throws ParseException{
+            try{
+                query = "insert into Friends(friendDate, 0, userID1, userID2) values (?,?,?,?)";
+                prepStatement = connection.prepareStatement(query);
+
+                //formatting date for birthday
+                java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd");
+                java.sql.Date date = new java.sql.Date (df.parse(friendDate).getTime());
+
+                //formatting time for last login
+                java.util.Date utilDate = new java.util.Date();
+                java.sql.Timestamp lastLogin = new java.sql.Timestamp(utilDate.getTime());
+
+                // You need to specify which question mark to replace with a value.
+                // They are numbered 1 2 3 etc..
+                prepStatement.setDate(1, date);
+                prepStatement.setInt(2, friendStatus); 
+                prepStatement.setInt(3, userID1);
+                prepStatement.setInt(4, userID2);
+
+
+                // Now that the statement is ready. Let's execute it. Note the use of 
+                // executeUpdate for insertions and updates instead of executeQuery for 
+                // selections.
+                prepStatement.executeUpdate();
+            }
+            catch(SQLException Ex) {
+            }
+        }
 	
 	//function to create user. sets last login to current time
 	public void createUser(String fname, String lname, String email, String dob){
