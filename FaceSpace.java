@@ -19,6 +19,8 @@ public class FaceSpace {
 		
 	}
         
+
+
         public void initiateFriendship(String friendDate, int friendStatus, int userID1, int userID2) throws ParseException{
             try{
                 query = "insert into Friends(friendDate, 0, userID1, userID2) values (?,?,?,?)";
