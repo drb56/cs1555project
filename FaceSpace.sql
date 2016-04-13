@@ -37,7 +37,7 @@ END;
 
 --CREATE FRIENDS TABLE
 CREATE TABLE Friends(
-		friendDate 				TIMESTAMP NOT NULL,
+		friendDate 				DATE,
 		friendStatus 			NUMBER(1) NOT NULL,
 		userID1 				NUMBER(10) NOT NULL,
 		userID2 				NUMBER(10) NOT NULL,

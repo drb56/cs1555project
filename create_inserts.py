@@ -76,6 +76,9 @@ for i in range(200):
 		key = str(first_user) + " " + str(second_user)
 		
 
+	friendStatus = 1 if random.random() > .15 else 0
+
+
 	existing_friendships.append(key)
 
 	year = random.randint(2015, 2016)
@@ -85,9 +88,8 @@ for i in range(200):
 	minute = random.randint(0, 59)
 	second = random.randint(0, 59)
 
-	friendDate = datetime(year, month, day, hour, minute, second)
+	friendDate = datetime(year, month, day, hour, minute, second) if friendStatus == 1 else "NULL";
 
-	friendStatus = 1 if random.random() > .15 else 0
 
 
 
