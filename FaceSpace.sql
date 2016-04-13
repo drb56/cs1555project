@@ -47,6 +47,26 @@ CREATE TABLE Friends(
 		FOREIGN KEY(userID2) REFERENCES users(userID)
 );
 
+CREATE OR REPLACE TRIGGER ensure_unique_friendship
+BEFORE INSERT ON friends
+FOR EACH ROW
+
+DECLARE
+  l_friendstatus NUMBER;
+  friendship_exists EXCEPTION;
+BEGIN
+  SELECT userID1 INTO l_friendstatus FROM Friends WHERE (userID1 = :new.userID1 AND userID2 = :new.userID2) OR (userID1 = :new.userID2 AND userID2 = :new.userID1);
+  IF (l_friendstatus IS NOT NULL) THEN
+    RAISE friendship_exists;
+  END IF;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+  	NULL;
+    
+END;
+/
+
+
 --FRIENDS SEQUENCE
 CREATE SEQUENCE friends_seq;
 
