@@ -88,12 +88,10 @@ for i in range(200):
 	minute = random.randint(0, 59)
 	second = random.randint(0, 59)
 
-	friendDate = datetime(year, month, day, hour, minute, second) if friendStatus == 1 else "NULL";
+	friendDate = "TO_TIMESTAMP('{}', 'YYYY-MM-DD HH24:MI:SS')".format(datetime(year, month, day, hour, minute, second)) if friendStatus == 1 else "NULL"
 
 
-
-
-	insert_friendships.append("INSERT INTO Friends VALUES (TO_TIMESTAMP('{}', 'YYYY-MM-DD HH24:MI:SS'), {}, {}, {}, NULL);".format(
+	insert_friendships.append("INSERT INTO Friends VALUES ({}, {}, {}, {}, NULL);".format(
 		friendDate,
 		friendStatus,
 		first_user,
