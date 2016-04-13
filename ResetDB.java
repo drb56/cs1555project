@@ -97,7 +97,7 @@ public class ResetDB {
             "BEFORE INSERT ON Friends \n" + 
             "FOR EACH ROW \n" + 
             "BEGIN \n" + 
-            "SELECT SELECT friends_seq.NEXTVAL INTO :new.friendID FROM dual; \n" + 
+            "SELECT friends_seq.NEXTVAL INTO :new.friendID FROM dual; \n" + 
             "END";
 
         String groups_increment = ""+
@@ -105,7 +105,7 @@ public class ResetDB {
             "BEFORE INSERT ON Groups \n" + 
             "FOR EACH ROW \n" + 
             "BEGIN \n" + 
-            "SELECT SELECT groups_seq.NEXTVAL INTO :new.groupID FROM dual; \n" + 
+            "SELECT groups_seq.NEXTVAL INTO :new.groupID FROM dual; \n" + 
             "END";
 
         String messages_increment = ""+
@@ -113,7 +113,7 @@ public class ResetDB {
             "BEFORE INSERT ON Messages \n" + 
             "FOR EACH ROW \n" + 
             "BEGIN \n" + 
-            "SELECT SELECT messages_seq.NEXTVAL INTO :new.msgID FROM dual; \n" + 
+            "SELECT messages_seq.NEXTVAL INTO :new.msgID FROM dual; \n" + 
             "END";
 
 
