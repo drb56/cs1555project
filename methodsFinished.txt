@@ -1,0 +1,14 @@
+createUser:		Eli
+initiateFriendship:	Dave
+establishFriendship:	Dave
+displayFriends:		John
+createGroup:		Eli
+addToGroup:		Eli
+sendMessageToUser:	Eli
+sendMessageToGroup:	
+displayMessages:	Dave
+displayNewMessages:	
+searchForUser:		
+threeDegrees:		
+topMessages:		
+dropUser:		
