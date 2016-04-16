@@ -17,7 +17,7 @@ public class FaceSpace {
 //		createUser("abcde", "abcde", "elkjlkj", "2012-02-24");
 //		initiateFriendship("2015-03-10", 0, 8, 9);
 //                establishFriendship(201);
-                displayMessages(12);
+                displayMessages(64);
 		
 	}
         
@@ -35,20 +35,27 @@ public class FaceSpace {
         
         public void displayMessages(int userID){
             try{
-                query = "SELECT * FROM messages WHERE recipientID = ?";
-                prepStatement = connection.prepareStatement(query);
-                prepStatement.setInt(1, userID);
+                String ID = Integer.toString(userID);
+                query = "SELECT * FROM messages WHERE recipientID = " + ID;
+                
+                statement = connection.createStatement();
                 resultSet = statement.executeQuery(query);
-                while (resultSet.next())
-                {
-                       System.out.println("msgID: " + resultSet.getString(6)
+                
+                if(resultSet != null){
+                    while (resultSet.next()){
+                       System.out.println("\n\nmsgID: " + resultSet.getString(6)
                                 + "\nSenderID: " + resultSet.getInt(4)
                                 + "\nRecipientID: " + resultSet.getInt(5)
                                 + "\nDateSent: " + resultSet.getDate(3)
                                 + "\nSubject: " + resultSet.getString(1)
-                                + "\nMessageText: " + resultSet.getString(2)
-                                + "\n\n");
+                                + "\nMessageText: " + resultSet.getString(2));
+                    }
+                    resultSet.close();
                 }
+                else{
+                    System.out.println("Sorry, there is no user with that ID.");
+                }
+                
             }catch(SQLException Ex) {
                 System.out.println("Error running the sample queries.  Machine Error: blerg" +
 			       Ex.toString());
