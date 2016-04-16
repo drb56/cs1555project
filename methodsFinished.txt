@@ -5,10 +5,10 @@ displayFriends:		John
 createGroup:		Eli
 addToGroup:		Eli
 sendMessageToUser:	Eli
-sendMessageToGroup:	
+sendMessageToGroup:	John
 displayMessages:	Dave
 displayNewMessages:	Dave
-searchForUser:		
+searchForUser:		john - in progress
 threeDegrees:		
 topMessages:		
 dropUser:		
