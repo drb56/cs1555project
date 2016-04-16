@@ -62,7 +62,7 @@ insert_friendships = []
 
 existing_friendships = []
 
-for i in range(200):
+for i in range(250):
 
 
 	first_user = random.randint(1, len(insert_users))
