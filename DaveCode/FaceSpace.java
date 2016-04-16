@@ -33,6 +33,38 @@ public class FaceSpace {
             }
         }
         
+        public void displayNewMessages(int userID){
+            
+            try{
+                String ID = Integer.toString(userID);
+                query = "SELECT M.subject, M.msgText, M.dateSent, M.senderID, M.recipientID, M.msgID\n" +
+                            "FROM Messages M, Users U\n" +
+                            "WHERE M.dateSent > U.lastLogin AND U.recipientID = " + ID;
+                
+                statement = connection.createStatement();
+                resultSet = statement.executeQuery(query);
+                
+                if(resultSet != null){
+                    while (resultSet.next()){
+                       System.out.println("\n\nmsgID: " + resultSet.getString(6)
+                                + "\nSenderID: " + resultSet.getInt(4)
+                                + "\nRecipientID: " + resultSet.getInt(5)
+                                + "\nDateSent: " + resultSet.getDate(3)
+                                + "\nSubject: " + resultSet.getString(1)
+                                + "\nMessageText: " + resultSet.getString(2));
+                    }
+                    resultSet.close();
+                }
+                else{
+                    System.out.println("Sorry, there is no user with that ID.");
+                }
+                
+            }catch(SQLException Ex) {
+                System.out.println("Error running the sample queries.  Machine Error: blerg" +
+			       Ex.toString());
+            }
+        }
+        
         public void displayMessages(int userID){
             try{
                 String ID = Integer.toString(userID);

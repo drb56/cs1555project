@@ -7,7 +7,7 @@ addToGroup:		Eli
 sendMessageToUser:	Eli
 sendMessageToGroup:	
 displayMessages:	Dave
-displayNewMessages:	
+displayNewMessages:	Dave
 searchForUser:		
 threeDegrees:		
 topMessages:		
