@@ -18,7 +18,7 @@ public class JohnCode {
         }
         
 
-    //assume
+    // returns an arraylist of friendships that include userID as one of the friendIDs
     public static ArrayList<Friendship> displayFriends(Connection conn, int userID){
         Statement friendsQuery = null;
         try{
@@ -65,6 +65,87 @@ public class JohnCode {
 
     }
 
+    //sends a message to a group
+    public static boolean sendToGroup(Connection conn, int groupID, int senderID, String subject, String message){
+        String query = "SELECT userID FROM Members WHERE GroupID = ?";
+        String generatedColumns[] = {"userID"};
+
+        ArrayList<Integer> usersForQuery = new ArrayList<Integer>();
+        try{
+            PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
+            statement.setInt(1, groupID);
+            ResultSet usersInGroup;
+
+            if (statement.execute()){
+                usersInGroup = statement.getResultSet();
+            }
+            else{
+                System.out.println("That group has no members.");
+                return false;
+            }
+            String messageInputString = "(";
+            while(usersInGroup.next()){
+                usersForQuery.add(usersInGroup.getInt(1));
+            }
+            for(int i =0; i < usersForQuery.size(); i++){
+                messageInputString += usersForQuery.get(i);
+                if(i < usersForQuery.size() - 1){
+                    messageInputString += ", ";
+                }
+            }
+            messageInputString += ")";
+            System.out.println("user ids to send to: " + messageInputString);
+
+
+        }
+        catch(Exception Ex)  {
+            System.out.println("Error querying database.  Machine Error: " +
+                Ex.toString());
+            return false;
+        }
+
+        ArrayList<PreparedStatement> inserts = new ArrayList<PreparedStatement>();
+        java.util.Date utilDate = new java.util.Date();
+        java.sql.Timestamp dateSent = new java.sql.Timestamp(utilDate.getTime());
+
+        for(int i = 0; i < usersForQuery.size(); i++){
+            query = "INSERT INTO Messages(subject, msgText, dateSent, senderID, recipientID) VALUES(?, ?, ?, ?, ?)";
+            try{
+                PreparedStatement statement = conn.prepareStatement(query);
+                statement.setString(1, subject);
+                statement.setString(2, message);
+                statement.setTimestamp(3, dateSent);
+                statement.setInt(4, senderID);
+                statement.setInt(5, usersForQuery.get(i));
+                inserts.add(statement);
+            }
+            catch(Exception Ex)  {
+                System.out.println("Error submitting to database.  Machine Error: " +
+                    Ex.toString());
+                return false;
+            }
+        }
+
+        boolean succeeded = true;
+
+
+        for(int i = 0; i < inserts.size(); i++){
+
+            PreparedStatement statement = inserts.get(i);
+            try{
+                int result = statement.executeUpdate();
+                System.out.println("the insert returned a result of:");
+                System.out.println(result);
+            }
+            catch(Exception Ex)  {
+                System.out.println("Error submitting to database.  Machine Error: " +
+                    Ex.toString());
+                return false;
+            }
+        }
+        return succeeded;
+    }
+
 
       public static void main(String args[]) throws SQLException {
             /* Making a connection to a DB causes certain exceptions.  In order to handle
@@ -89,6 +170,9 @@ public class JohnCode {
             //create a connection to DB on class3.cs.pitt.edu
             Connection connection = DriverManager.getConnection(url, username, password); 
             displayFriends(connection, 2);
+            boolean result = sendToGroup(connection, 1, 15, "hey", "I'm sending a test message!");
+            System.out.println("the return of sendToGroup was " + Boolean.toString(result));
+
             //JohnCode demo = new JohnCode(connection);
             //demo.displayMessages(12);
             try{

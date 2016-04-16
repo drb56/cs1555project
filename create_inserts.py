@@ -167,6 +167,13 @@ for i in range(300):
 		recipient_id
 	))
 
+memberships = []
+
+for i in range(40):
+	user = random.randint(1, len(insert_users))
+	group = random.randint(1, len(insert_groups))
+
+	memberships.append("INSERT INTO Members VALUES('{}', '{}');".format(group, user))
 
 
 #set the filename to be this script's directory + inputs.sql
@@ -196,3 +203,8 @@ with open(filename, 'w') as file:
 
 	for group in insert_groups:
 		file.write(group + '\n')
+
+	file.write('\n')
+
+	for membership in memberships:
+		file.write(membership + '\n')
