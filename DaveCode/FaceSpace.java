@@ -17,7 +17,8 @@ public class FaceSpace {
 //		createUser("abcde", "abcde", "elkjlkj", "2012-02-24");
 //		initiateFriendship("2015-03-10", 0, 8, 9);
 //                establishFriendship(201);
-                displayMessages(64);
+//                displayMessages(64);
+                displayNewMessages(34);
 		
 	}
         
@@ -39,7 +40,7 @@ public class FaceSpace {
                 String ID = Integer.toString(userID);
                 query = "SELECT M.subject, M.msgText, M.dateSent, M.senderID, M.recipientID, M.msgID\n" +
                             "FROM Messages M, Users U\n" +
-                            "WHERE M.dateSent > U.lastLogin AND U.recipientID = " + ID;
+                            "WHERE M.dateSent > U.lastLogin AND M.recipientID = " + ID;
                 
                 statement = connection.createStatement();
                 resultSet = statement.executeQuery(query);
