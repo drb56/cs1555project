@@ -2,15 +2,16 @@
 
 import java.sql.*;  //import the file containing definitions for the parts
 import java.text.ParseException;
+import java.util.ArrayList;
 import oracle.jdbc.*; //needed by java for database connection and manipulation
 					
 public class FaceSpace {
-    private static Connection connection; //used to hold the jdbc connection to the DB
-    private Statement statement; //used to create an instance of the connection
-    private PreparedStatement prepStatement; //used to create a prepared statement, that will be later reused
-    private ResultSet resultSet; //used to hold the result of your query (if one
+//    private static Connection connection; //used to hold the jdbc connection to the DB
+//    private Statement statement; //used to create an instance of the connection
+//    private PreparedStatement prepStatement; //used to create a prepared statement, that will be later reused
+//    private ResultSet resultSet; //used to hold the result of your query (if one
     // exists)
-    private String query;  //this will hold the query we are using
+//    private String query;  //this will hold the query we are using
 	
 	//constructor of facespace object 
 	public FaceSpace() throws ParseException, SQLException{
@@ -18,32 +19,46 @@ public class FaceSpace {
 //		initiateFriendship("2015-03-10", 0, 8, 9);
 //                establishFriendship(201);
 //                displayMessages(64);
-                displayNewMessages(34);
-		
+//                displayNewMessages(34);
+//		dropUser(27);
 	}
         
-        public void establishFriendship(int userID) throws SQLException{
+        public static void dropUser(Connection connection, int userID){
             try{
-                query = "UPDATE friends SET friendStatus = 1 WHERE friendID = ?";
-                prepStatement = connection.prepareStatement(query);
-                prepStatement.setInt(1, userID);
-                prepStatement.executeUpdate();
+                String query = "DELETE FROM users WHERE userID = " + Integer.toString(userID);
+                Statement prepStatement = connection.prepareStatement(query);
+//                prepStatement.setInt(1, userID);
+                prepStatement.executeUpdate(query);
+            }catch(SQLException Ex) {
+                System.out.println("Error running the sample queries.  Machine Error: " +
+			       Ex.toString());
+            }
+            
+            
+        }
+        
+        public static void establishFriendship(Connection connection, int userID) throws SQLException{
+            try{
+                String query = "UPDATE friends SET friendStatus = 1 WHERE friendID = " + Integer.toString(userID);
+                Statement prepStatement = connection.prepareStatement(query);
+//                prepStatement.setInt(1, userID);
+                prepStatement.executeUpdate(query);
             }catch(SQLException Ex) {
                 System.out.println("Error running the sample queries.  Machine Error: " +
 			       Ex.toString());
             }
         }
         
-        public void displayNewMessages(int userID){
+        public static void displayNewMessages(Connection connection, int userID){
             
             try{
                 String ID = Integer.toString(userID);
-                query = "SELECT M.subject, M.msgText, M.dateSent, M.senderID, M.recipientID, M.msgID\n" +
+                String query = "SELECT M.subject, M.msgText, M.dateSent, M.senderID, M.recipientID, M.msgID\n" +
                             "FROM Messages M, Users U\n" +
                             "WHERE M.dateSent > U.lastLogin AND M.recipientID = " + ID;
                 
-                statement = connection.createStatement();
-                resultSet = statement.executeQuery(query);
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query);
                 
                 if(resultSet != null){
                     while (resultSet.next()){
@@ -66,13 +81,12 @@ public class FaceSpace {
             }
         }
         
-        public void displayMessages(int userID){
+        public static void displayMessages(Connection connection, int userID){
             try{
-                String ID = Integer.toString(userID);
-                query = "SELECT * FROM messages WHERE recipientID = " + ID;
+                String query = "SELECT * FROM messages WHERE recipientID = " + Integer.toString(userID);
                 
-                statement = connection.createStatement();
-                resultSet = statement.executeQuery(query);
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query);
                 
                 if(resultSet != null){
                     while (resultSet.next()){
@@ -96,15 +110,16 @@ public class FaceSpace {
         }
 
 
-        public void initiateFriendship(String friendDate, int friendStatus, int userID1, int userID2) throws ParseException{
+        public static void initiateFriendship(Connection connection, String friendDate, int friendStatus, int userID1, int userID2) throws ParseException{
             try{
-                query = "insert into Friends(friendDate, friendStatus, userID1, userID2) values (?,?,?,?)";
-                prepStatement = connection.prepareStatement(query);
+                String query = "insert into Friends(friendDate, friendStatus, userID1, userID2) values (?,?,?,?)";
+                
 
                 //formatting date for birthday
                 java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd");
                 java.sql.Date date = new java.sql.Date (df.parse(friendDate).getTime());
-
+//                String query = "insert into Friends(" + date + ", " + Integer.toString(friendStatus) + ", " + Integer.toString(userID1) + ", " + Integer.toString(userID2);
+                PreparedStatement prepStatement = connection.prepareStatement(query);
                 // You need to specify which question mark to replace with a value.
                 // They are numbered 1 2 3 etc..
                 prepStatement.setDate(1, date);
@@ -124,18 +139,19 @@ public class FaceSpace {
         }
 	
 	//function to create user. sets last login to current time
-	public void createUser(String fname, String lname, String email, String dob){
+	public static void createUser(Connection connection, String fname, String lname, String email, String dob){
 		try{
-			query = "insert into Users(fname, lname, email, dateOfBirth, lastLogin) values (?,?,?,?,?)";
-			prepStatement = connection.prepareStatement(query);
-			
-			//formatting date for birthday
-			java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd");
-			java.sql.Date dateOfBirth = new java.sql.Date (df.parse(dob).getTime());
-			
+			String query = "insert into Users(fname, lname, email, dateOfBirth, lastLogin) values (?,?,?,?,?)";
+                        
 			//formatting time for last login
 			java.util.Date utilDate = new java.util.Date();
 			java.sql.Timestamp lastLogin = new java.sql.Timestamp(utilDate.getTime());
+			//formatting date for birthday
+			java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd");
+			java.sql.Date dateOfBirth = new java.sql.Date (df.parse(dob).getTime());
+//			String query = "insert into Users(" + fname + ", " + lname + ", " + email + ", " + dateOfBirth + ", " + lastLogin + ")";
+			PreparedStatement prepStatement = connection.prepareStatement(query);
+			
 			
 			// You need to specify which question mark to replace with a value.
 			// They are numbered 1 2 3 etc..
@@ -158,14 +174,14 @@ public class FaceSpace {
 			System.out.println("Error parsing the date. Machine Error: " +
 			e.toString());
 		}
-		finally{
-			try {
-				if (statement != null) statement.close();
-				if (prepStatement != null) prepStatement.close();
-			} catch (SQLException e) {
-				System.out.println("Cannot close Statement. Machine error: "+e.toString());
-			}
-		}
+//		finally{
+//			try {
+//				if (statement != null) statement.close();
+//				if (prepStatement != null) prepStatement.close();
+//			} catch (SQLException e) {
+//				System.out.println("Cannot close Statement. Machine error: "+e.toString());
+//			}
+//		}
 	}
 
 	public static void main(String args[]) throws SQLException {
@@ -190,8 +206,21 @@ public class FaceSpace {
 			
 			System.out.println("Connect to DB..");
 			//create a connection to DB on class3.cs.pitt.edu
-			connection = DriverManager.getConnection(url, username, password); 
-			FaceSpace demo = new FaceSpace();
+			Connection connection = DriverManager.getConnection(url, username, password); 
+//			FaceSpace demo = new FaceSpace();
+                        System.out.println("dropUser");
+                        dropUser(connection, 17);
+                        System.out.println("createUser");
+                        createUser(connection, "abcde", "abcde", "elkjlkj", "2012-02-24");
+                        System.out.println("initiateFriendship");
+                        initiateFriendship(connection, "2015-03-10", 0, 8, 9);
+                        System.out.println("establishFriendship");
+                        establishFriendship(connection, 201);
+                        System.out.println("displayMessages");
+                        displayMessages(connection, 64);
+                        System.out.println("distplayNewMessages");
+                        displayNewMessages(connection, 34);
+                        connection.close();
 			
 		}
 		catch(Exception Ex)  {
@@ -204,7 +233,7 @@ public class FaceSpace {
 			 * NOTE: the connection should be created once and used through out the whole project;
 			 * Is very expensive to open a connection therefore you should not close it after every operation on database
 			 */
-			connection.close();
+//			connection.close();
 		}
     }
 	

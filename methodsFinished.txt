@@ -8,7 +8,7 @@ sendMessageToUser:	Eli
 sendMessageToGroup:	John
 displayMessages:	Dave
 displayNewMessages:	Dave
-searchForUser:		john - in progress
-threeDegrees:		
+searchForUser:		John
+threeDegrees:		John
 topMessages:		Eli - just starting
-dropUser:		
+dropUser:		Dave

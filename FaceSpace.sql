@@ -125,7 +125,7 @@ CREATE TABLE Messages(
 		recipientID 			NUMBER(10),
 		msgID 					NUMBER(10),
 		PRIMARY KEY(msgID),
-		FOREIGN KEY(senderID) REFERENCES users(userID),
+		-- FOREIGN KEY(senderID) REFERENCES users(userID),
 		FOREIGN KEY(recipientID) REFERENCES users(userID)
 );
 
@@ -141,5 +141,22 @@ BEGIN
   SELECT messages_seq.NEXTVAL
   INTO   :new.msgID
   FROM   dual;
+END;
+/
+
+
+
+
+--Trigger for dropUser() function
+CREATE OR REPLACE TRIGGER dropUserTrigger
+    BEFORE DELETE ON Users
+    FOR EACH ROW
+BEGIN
+    DELETE FROM Members
+    WHERE :old.userID = userID;
+    DELETE FROM Friends
+    WHERE :old.userID = userID1 OR :old.userID = userID2;
+    DELETE FROM Messages
+    WHERE :old.userID = recipientID;
 END;
 /
