@@ -2,10 +2,51 @@
 import java.sql.*;  //import the file containing definitions for the parts
 import java.util.ArrayList;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import oracle.jdbc.*; //needed by java for database connection and manipulation
-                              
+
+
+
+
+                  
 public class JohnCode {
-  
+
+    /**
+     * @param dateString An input String, presumably from a user or a database table.
+     * @param formats An array of date formats that we have allowed for.
+     * @return A Date (java.util.Date) reference. The reference will be null if 
+     *         we could not match any of the known formats.
+     */
+    private static java.util.Date parseDate(String dateString, String[] formats)
+    {
+        java.util.Date date = null;
+        boolean success = false;
+
+        for (int i = 0; i < formats.length; i++)
+        {
+            String format = formats[i];
+            SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+
+            try
+            {
+                // parse() will throw an exception if the given dateString doesn't match
+                // the current format
+                date = dateFormat.parse(dateString);
+                success = true;
+                break;
+            }
+            catch(ParseException e)
+            {
+                // don't do anything. just let the loop continue.
+                // we may miss on 99 format attempts, but match on one format,
+                // but that's all we need.
+            }
+        }
+
+        return date;
+    }
+
+
     private static Connection connection; //used to hold the jdbc connection to the DB
     private Statement statement; //used to create an instance of the connection
     private PreparedStatement prepStatement; //used to create a prepared statement, that will be later reused
@@ -13,10 +54,69 @@ public class JohnCode {
     // exists)
     private String query;  //this will hold the query we are using
 
-        //constructor of facespace object 
-        public JohnCode(Connection conn) /*throws ParseException*/{
-        }
+    //constructor of facespace object 
+    public JohnCode(Connection conn) /*throws ParseException*/{
+    }
         
+
+    public static User searchForUser(Connection conn, String searchString) throws SQLException{
+
+        Array varchars;
+        Array dates;
+        Array numbers;
+
+        String[] elements = searchString.split(" ");
+
+        ArrayList<Date> parsed_dates = new ArrayList<Date>();
+        ArrayList<Integer> parsed_numbers = new ArrayList<Integer>();
+
+        String[] datePatterns = new String[] {
+            "ddMMMyy",    // ex. 11Mar09
+            "dd-MM-yyyy", // ex. 11-09-2009
+            "dd/MM/yyyy", // ex. 11/09/2009
+        };
+
+        for(int i = 0; i < elements.length; i++){
+
+            ArrayList<PreparedStatement> inserts = new ArrayList<PreparedStatement>();
+            java.util.Date utilDate = new java.util.Date();
+
+            java.util.Date parsedDate;
+            Integer parsedInt;
+
+            parsedDate = parseDate(elements[i], datePatterns);
+
+            try{
+                parsedInt = Integer.parseInt(elements[i]);
+            }catch(NumberFormatException e){
+                //Number not found in the string
+                parsedInt = null;
+            }
+        }
+        Integer[] parsed_numbers_array = parsed_numbers.toArray(new Integer[parsed_numbers.size()]);
+        java.util.Date[] parsed_dates_array = parsed_dates.toArray(new java.util.Date[parsed_dates.size()]);
+
+
+        dates = conn.createArrayOf("DATE", parsed_dates_array);
+        varchars = conn.createArrayOf("VARCHAR", elements);
+        numbers = conn.createArrayOf("NUMBER", parsed_numbers_array);
+
+
+
+        String query = "SELECT * FROM Friends WHERE userID1 = ? OR userID2 = ?";
+        String generatedColumns[] = { "FriendDate",  "FriendStatus", "userID1", "userID2", "friendID"};
+        PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
+
+        System.out.println("this is the generated query:");
+        System.out.println(statement);
+
+        return null;
+
+
+
+    }
+
+
 
     // returns an arraylist of friendships that include userID as one of the friendIDs
     public static ArrayList<Friendship> displayFriends(Connection conn, int userID){
@@ -171,6 +271,7 @@ public class JohnCode {
             Connection connection = DriverManager.getConnection(url, username, password); 
             displayFriends(connection, 2);
             boolean result = sendToGroup(connection, 1, 15, "hey", "I'm sending a test message!");
+            searchForUser(connection, "jim jones hello@yahoo.com dude 25 10-19-1994");
             System.out.println("the return of sendToGroup was " + Boolean.toString(result));
 
             //JohnCode demo = new JohnCode(connection);
