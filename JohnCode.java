@@ -1,6 +1,7 @@
 
 import java.sql.*;  //import the file containing definitions for the parts
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import oracle.jdbc.*; //needed by java for database connection and manipulation
@@ -47,26 +48,13 @@ public class JohnCode {
     }
 
 
-    //Method: Set properties of the ooject accessible.
-    public static  Field getFieldByName(Field[] campos, String name) {
-        Field f = null;
-        for (Field campo : campos) {
-            campo.setAccessible(true);
-            if (campo.getName().equals(name)) {
-                f = campo;
-                break;
-            }
+    public static java.sql.Date convertFromJAVADateToSQLDate(java.util.Date javaDate) {
+        java.sql.Date sqlDate = null;
+        if (javaDate != null) {
+            sqlDate = new Date(javaDate.getTime());
         }
-        return f;
+        return sqlDate;
     }
-
-
-    private static Connection connection; //used to hold the jdbc connection to the DB
-    private Statement statement; //used to create an instance of the connection
-    private PreparedStatement prepStatement; //used to create a prepared statement, that will be later reused
-    private ResultSet resultSet; //used to hold the result of your query (if one
-    // exists)
-    private String query;  //this will hold the query we are using
 
     //constructor of facespace object 
     public JohnCode(Connection conn) /*throws ParseException*/{
@@ -83,66 +71,140 @@ public class JohnCode {
 
         ArrayList<Date> parsed_dates = new ArrayList<Date>();
         ArrayList<Integer> parsed_numbers = new ArrayList<Integer>();
+        ArrayList<String> parsed_strings = new ArrayList<String>(Arrays.asList(elements));
 
         String[] datePatterns = new String[] {
-            "ddMMMyy",    // ex. 11Mar09
             "dd-MM-yyyy", // ex. 11-09-2009
             "dd/MM/yyyy", // ex. 11/09/2009
         };
 
         for(int i = 0; i < elements.length; i++){
 
-            ArrayList<PreparedStatement> inserts = new ArrayList<PreparedStatement>();
             java.util.Date utilDate = new java.util.Date();
 
             java.util.Date parsedDate;
             Integer parsedInt;
 
             parsedDate = parseDate(elements[i], datePatterns);
+            try{
+                if(parsedDate != null){
+                    parsed_dates.add(convertFromJAVADateToSQLDate(parsedDate));
+                    System.out.println("parsed a date with: ");
+                    System.out.println(elements[i]);
+                }
+            }catch(Exception e){
+                System.out.println("failed to parse a date with: ");
+                System.out.println(elements[i]);
+            }
+
 
             try{
                 parsedInt = Integer.parseInt(elements[i]);
+                parsed_numbers.add(parsedInt);
             }catch(NumberFormatException e){
                 //Number not found in the string
-                parsedInt = null;
             }
         }
-        Integer[] parsed_numbers_array = parsed_numbers.toArray(new Integer[parsed_numbers.size()]);
-        java.util.Date[] parsed_dates_array = parsed_dates.toArray(new java.util.Date[parsed_dates.size()]);
 
 
-        OracleConnection oracleConnection = (OracleConnection) conn;
-
-        System.out.println(oracleConnection.toString());
-
-        if(elements.length > 0){
-            varchars = oracleConnection.createARRAY("VARCHAR", elements);
-        }else{
-            varchars = null;
+        String varchar_openings = "";
+        for(int i = 0; i < parsed_strings.size(); i++){
+            varchar_openings += "?";
+            if(i != parsed_strings.size() -1){
+                varchar_openings += ", ";
+            }
+        }
+        String date_openings = "";
+        for(int i = 0; i < parsed_dates.size(); i++){
+            date_openings += "?";
+            if(i != parsed_dates.size() -1){
+                date_openings += ", ";
+            }
+        }
+        String numbers_openings = "";
+        for(int i = 0; i < parsed_numbers.size(); i++){
+            numbers_openings += "?";
+            if(i != parsed_numbers.size() -1){
+                numbers_openings += ", ";
+            }
         }
 
-        if(parsed_dates_array.length > 0){
-            //dates = oracleConnection.createARRAY("DATE", parsed_dates_array);
-        }else{
-            dates = null;
-        }
+        if(parsed_dates.size() ==0)parsed_dates.add(null);
+        if(parsed_strings.size() ==0)parsed_strings.add(null);
+        if(parsed_numbers.size() ==0)parsed_numbers.add(null);
 
-        if(parsed_numbers_array.length > 0){
-            //numbers = oracleConnection.createARRAY("NUMBER", parsed_numbers_array);
-        }else{
-            numbers = null;
-        }
 
-        String query = "SELECT * FROM Friends WHERE userID1 = ? OR userID2 = ?";
-        String generatedColumns[] = { "FriendDate",  "FriendStatus", "userID1", "userID2", "friendID"};
+
+        String query = "SELECT * FROM Users WHERE fname IN (" + varchar_openings + ") OR Lname IN (" + varchar_openings +
+                        ") OR email IN (" + varchar_openings + ") OR dateOfBirth IN (" + date_openings + ") OR userID IN (" + numbers_openings + ")";
+
+
+        String queryToPrint = query;
+
+        String generatedColumns[] = { "fname",  "lname", "email", "dateOfBirth", "lastLogin", "userID"};
         PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
 
-        System.out.println("this is the generated query:");
-        System.out.println(statement);
+        int i = 1;
+        int z = 0;
+
+
+        System.out.println("length of parsed strings is: " + parsed_strings.size() + ", length of varchar openings is: " + varchar_openings.length());
+
+        for(i=1; i <= parsed_strings.size(); i++){
+            statement.setString(i, parsed_strings.get(i-1));
+            queryToPrint = queryToPrint.replaceFirst("\\?", parsed_strings.get(i-1));
+        }
+        for(z=0; z < parsed_strings.size(); i++, z++){
+            statement.setString(i, parsed_strings.get(z));
+            queryToPrint = queryToPrint.replaceFirst("\\?", parsed_strings.get(z));
+        }
+        for(z=0; z < parsed_strings.size(); i++, z++){
+            statement.setString(i, parsed_strings.get(z));
+            queryToPrint = queryToPrint.replaceFirst("\\?", parsed_strings.get(z));
+        }
+        for(z=0; z < parsed_dates.size(); i++, z++){
+            statement.setDate(i, parsed_dates.get(z));
+            queryToPrint = queryToPrint.replaceFirst("\\?", parsed_dates.get(z).toString());
+        }
+        for(z=0; z < parsed_numbers.size(); i++, z++){
+            statement.setInt(i, parsed_numbers.get(z));
+            queryToPrint = queryToPrint.replaceFirst("\\?", parsed_numbers.get(z).toString());
+        }
+
+
+        System.out.println(queryToPrint);
+
+        ResultSet users;
+
+        if(statement.execute()){
+            users = statement.getResultSet();
+            while(users.next()){
+
+                String fname = users.getString(1);
+                String lname = users.getString(2);
+                String email = users.getString(3);
+                Date dob = users.getDate(4);
+                Timestamp lastLogin = users.getTimestamp(5);
+                int id = users.getInt(6);
+
+
+
+                System.out.println("fname: " + fname
+                    + "\nlname: " + lname
+                    + "\nemail: " + email
+                    + "\ndate of birth: " + dob
+                    + "\nid: " + id
+                    + "\n\n");
+
+            }
+        }
+        else{
+            //no users found
+            System.out.println("no users found!");
+            return null;
+        }
 
         return null;
-
-
 
     }
 
@@ -301,8 +363,13 @@ public class JohnCode {
             Connection connection = DriverManager.getConnection(url, username, password); 
             displayFriends(connection, 2);
             boolean result = sendToGroup(connection, 1, 15, "hey", "I'm sending a test message!");
-            searchForUser(connection, "jim jones hello@yahoo.com dude 25 10-19-1994");
+            searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
             System.out.println("the return of sendToGroup was " + Boolean.toString(result));
+
+            String[] datePatterns = new String[] {
+                "dd-MM-yyyy", // ex. 11-09-2009
+                "dd/MM/yyyy", // ex. 11/09/2009
+            };
 
             //JohnCode demo = new JohnCode(connection);
             //demo.displayMessages(12);
