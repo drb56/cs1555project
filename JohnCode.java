@@ -61,6 +61,130 @@ public class JohnCode {
     }
         
 
+    public static User threeDegrees(Connection conn, int userID1, int userID2) throws SQLException{
+
+    //first, get all the firiends of a user
+    Statement friendsQuery = null;
+        String query = "SELECT * FROM Friends WHERE userID1 = ? OR userID2 = ?";
+        String generatedColumns[] = { "FriendDate",  "FriendStatus", "userID1", "userID2", "friendID"};
+        PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
+
+        statement.setInt(1, userID1);
+        statement.setInt(2, userID1);
+        
+        ResultSet friendships;
+        if(statement.execute()){
+            friendships = statement.getResultSet();
+
+        }
+        else{
+            System.out.println("No friends found for initial user.");
+            return null;
+        }
+        ArrayList<Integer> userIDs = new ArrayList<Integer>();
+
+        while(friendships.next()){
+            //rs = stmt.getGeneratedKeys();
+            int friendID1 = friendships.getInt(3);
+            int friendID2 = friendships.getInt(4);
+
+            if(friendID1 == userID1){
+                userIDs.add(friendID2);
+            }
+            else{
+                userIDs.add(friendID1);
+            }
+        }
+
+        //create query to see if the target friend is a friend of any of these users
+
+
+        String friends_openings = "";
+        for(int i = 0; i < userIDs.size(); i++){
+            friends_openings += "?";
+            if(i != userIDs.size() -1){
+                friends_openings += ", ";
+            }
+        }
+        System.out.println(userIDs);
+        System.out.println(userID2);
+
+        query = "SELECT userID1, userID2 FROM Friends WHERE userID1 IN ( " + friends_openings + " ) AND userID2 = ?  OR userID2 IN ( " + friends_openings + " ) AND userID1 = ? ";
+        
+        String generatedColumns2[] = {"userID1", "userID2"};
+
+        PreparedStatement secondQuery = conn.prepareStatement(query, generatedColumns2);
+
+        String queryToPrint = query;
+        System.out.println(query);
+
+        int i = 1;
+        int z = 0;
+
+
+
+        for(i=1; i <= userIDs.size(); i++){
+            System.out.println("setting ? " + i + " to " + userIDs.get(i-1));
+            secondQuery.setInt(i, userIDs.get(i-1));
+            queryToPrint = queryToPrint.replaceFirst("\\?", userIDs.get(i-1).toString());
+        }
+        System.out.println("setting ? " + i + " to " + userID2);
+        secondQuery.setInt(i, userID2);
+        queryToPrint = queryToPrint.replaceFirst("\\?", userID2 +"");
+        i++;
+        for(z=0; z < userIDs.size(); i++, z++){
+            System.out.println("setting ? " + i + " to " + userIDs.get(z));
+            secondQuery.setInt(i, userIDs.get(z));
+            queryToPrint = queryToPrint.replaceFirst("\\?", userIDs.get(z).toString());
+        }
+        System.out.println("setting ? " + i + " to " + userID2);
+        secondQuery.setInt(i, userID2);
+        queryToPrint = queryToPrint.replaceFirst("\\?", userID2 +"");
+
+        System.out.println("running query: " + queryToPrint);
+        System.out.println(queryToPrint);
+
+
+        ResultSet secondResult;
+
+        ArrayList<Integer> middle_friends = new ArrayList<Integer>();
+
+        if(secondQuery.execute()){
+            secondResult = secondQuery.getResultSet();
+
+            while(secondResult.next()){
+                int friendID1 = secondResult.getInt(1);
+                int friendID2 = secondResult.getInt(2);
+                if(friendID1 != userID2){
+                    middle_friends.add(friendID1);
+                }
+                else{
+                    middle_friends.add(friendID2);
+                }
+            }
+        }else{
+            System.out.println("the user was not in the initial user's friends' friends list");
+            return null;
+        }
+
+
+        String middle_friends_text = "";
+        for(int v = 0; v < middle_friends.size(); v++){
+            middle_friends_text += middle_friends.get(v);
+            if(v != middle_friends.size() -1){
+                middle_friends_text += ", ";
+            }
+        }
+
+        System.out.println("The intermediary friends to get from " + userID1 + " to " + userID2 + " are [" + middle_friends_text + "]");
+
+
+
+        return null;
+
+
+    }
+
     public static User searchForUser(Connection conn, String searchString) throws SQLException, IllegalAccessException{
 
         Array varchars;
@@ -364,6 +488,7 @@ public class JohnCode {
             displayFriends(connection, 2);
             boolean result = sendToGroup(connection, 1, 15, "hey", "I'm sending a test message!");
             searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
+            threeDegrees(connection, 3, 12);
             System.out.println("the return of sendToGroup was " + Boolean.toString(result));
 
             String[] datePatterns = new String[] {
