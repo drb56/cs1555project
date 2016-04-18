@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import oracle.jdbc.*; //needed by java for database connection and manipulation
-
+import java.lang.reflect.Field;
 
 
 
@@ -47,6 +47,20 @@ public class JohnCode {
     }
 
 
+    //Method: Set properties of the ooject accessible.
+    public static  Field getFieldByName(Field[] campos, String name) {
+        Field f = null;
+        for (Field campo : campos) {
+            campo.setAccessible(true);
+            if (campo.getName().equals(name)) {
+                f = campo;
+                break;
+            }
+        }
+        return f;
+    }
+
+
     private static Connection connection; //used to hold the jdbc connection to the DB
     private Statement statement; //used to create an instance of the connection
     private PreparedStatement prepStatement; //used to create a prepared statement, that will be later reused
@@ -59,7 +73,7 @@ public class JohnCode {
     }
         
 
-    public static User searchForUser(Connection conn, String searchString) throws SQLException{
+    public static User searchForUser(Connection conn, String searchString) throws SQLException, IllegalAccessException{
 
         Array varchars;
         Array dates;
@@ -97,11 +111,27 @@ public class JohnCode {
         java.util.Date[] parsed_dates_array = parsed_dates.toArray(new java.util.Date[parsed_dates.size()]);
 
 
-        dates = conn.createArrayOf("DATE", parsed_dates_array);
-        varchars = conn.createArrayOf("VARCHAR", elements);
-        numbers = conn.createArrayOf("NUMBER", parsed_numbers_array);
+        OracleConnection oracleConnection = (OracleConnection) conn;
 
+        System.out.println(oracleConnection.toString());
 
+        if(elements.length > 0){
+            varchars = oracleConnection.createARRAY("VARCHAR", elements);
+        }else{
+            varchars = null;
+        }
+
+        if(parsed_dates_array.length > 0){
+            //dates = oracleConnection.createARRAY("DATE", parsed_dates_array);
+        }else{
+            dates = null;
+        }
+
+        if(parsed_numbers_array.length > 0){
+            //numbers = oracleConnection.createARRAY("NUMBER", parsed_numbers_array);
+        }else{
+            numbers = null;
+        }
 
         String query = "SELECT * FROM Friends WHERE userID1 = ? OR userID2 = ?";
         String generatedColumns[] = { "FriendDate",  "FriendStatus", "userID1", "userID2", "friendID"};
@@ -247,7 +277,7 @@ public class JohnCode {
     }
 
 
-      public static void main(String args[]) throws SQLException {
+      public static void main(String args[]) throws SQLException, IllegalAccessException{
             /* Making a connection to a DB causes certain exceptions.  In order to handle
                these, you either put the DB stuff in a try block or have your function
                throw the Exceptions and handle them later. */
