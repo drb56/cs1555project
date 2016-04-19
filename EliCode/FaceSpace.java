@@ -3,6 +3,11 @@
 import java.sql.*;  //import the file containing definitions for the parts
 import java.text.ParseException;
 import oracle.jdbc.*; //needed by java for database connection and manipulation
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
 					
 public class FaceSpace {
     private static Connection connection; //used to hold the jdbc connection to the DB
@@ -14,14 +19,160 @@ public class FaceSpace {
 	
 	//constructor of facespace object 
 	public FaceSpace(){
-		createUser("abcde", "abcde", "elkjlkj", "2012-02-24");
-		createGroup("Eli Test", "Eli Test", 1);
-		addToGroup(1,1);
-		sendMessageToUser("MessageTEst", "MessageTEst", 1, 1);
-		
+		//createUser("abcde", "abcde", "elkjlkj", "2012-02-24");
+		//createGroup("Eli Test", "Eli Test", 1);
+		//addToGroup(1,1);
+		//sendMessageToUser("MessageTEst", "MessageTEst", 1, 1);
+		topMessagers(10, "01/01/2015");
 		//@FaceSpace.sql
 	}
 	//*************last login time? add every action?
+	
+	//fuction to show top k messagers
+	public void topMessagers(int users, String udate){
+		try{
+			
+			//to store userid and number of messages recieved/sent
+			HashMap<Integer, Integer> hm = new HashMap<Integer, Integer>();
+			
+			//formatting time for date
+			DateFormat formatter;
+		    formatter = new SimpleDateFormat("dd/MM/yyyy");
+		    Date fdate = (Date) formatter.parse(udate);
+			java.sql.Timestamp tsdate = new java.sql.Timestamp(fdate.getTime());
+			
+			statement = connection.createStatement(); //create an instance
+			//String selectQuery = "select userid, ttlmsggs from( select userid, (cntsid + cntrid) as ttlmsggs from( select * from (select senderID as userid, count(senderID) as cntsid from Messages where dateSent >= ? group by senderID ) natural join (select recipientID as userid, count(recipientID) as cntrid from Messages where dateSent >= ? group by recipientID ) ) order by ttlmsggs desc ) where rownum <= ?" ;
+			String selectQuery = "select senderID as userid, count(senderID) as cntsid from Messages where dateSent >= ? group by senderID";
+			prepStatement = connection.prepareStatement(selectQuery);
+			
+			prepStatement.setTimestamp(1, tsdate);
+			resultSet = prepStatement.executeQuery();
+			
+			
+			while (resultSet.next()) //this not only keeps track of if another record
+			//exists but moves us forward to the first record
+			{
+				hm.put(resultSet.getInt(1), resultSet.getInt(2));
+			}
+			resultSet.close();
+			
+			
+			//get count from recipients
+			statement = connection.createStatement(); //create an instance
+			//String selectQuery = "select userid, ttlmsggs from( select userid, (cntsid + cntrid) as ttlmsggs from( select * from (select senderID as userid, count(senderID) as cntsid from Messages where dateSent >= ? group by senderID ) natural join (select recipientID as userid, count(recipientID) as cntrid from Messages where dateSent >= ? group by recipientID ) ) order by ttlmsggs desc ) where rownum <= ?" ;
+			selectQuery = "select recipientID as userid, count(recipientID) as cntsid from Messages where dateSent >= ? group by recipientID";
+			prepStatement = connection.prepareStatement(selectQuery);
+			
+			prepStatement.setTimestamp(1, tsdate);
+			resultSet = prepStatement.executeQuery();
+			
+			while (resultSet.next()) //this not only keeps track of if another record
+			//exists but moves us forward to the first record
+			{
+				int userid = resultSet.getInt(1);
+				int newcount = resultSet.getInt(2);
+				
+				if(hm.get(userid) == null){
+					hm.put(resultSet.getInt(1), resultSet.getInt(2));
+				}
+				else{
+					int oldcount = hm.get(userid);
+					newcount += oldcount;
+					hm.put(userid, newcount);
+				}
+				
+				
+			}
+			resultSet.close();
+			int count = 0;
+			
+			System.out.println("Top messegers are:");
+			
+			while(count != users){
+				int maxValueInMap=(Collections.max(hm.values()));// This will return max value in the Hashmap
+				for (Map.Entry<Integer, Integer> entry : hm.entrySet()) {  // Itrate through hashmap
+					if (entry.getValue()==maxValueInMap) {
+						count++;
+						System.out.println("UserID: " +entry.getKey() + " sent and recieved messages: " + entry.getValue());     // Print the key with max value
+						if(count == users){
+							break;
+						}
+					}
+				}
+				hm.values().removeAll(Collections.singleton(maxValueInMap));
+			}
+			
+		/*	//print out values
+			for(int j = keys.length - 1; j > (keys.length - 1 - users); j--){
+				System.out.println(j + sorted.get((Integer)keys[j]));
+			}
+		*/	
+			
+		/*	
+			prepStatement.setTimestamp(1, tsdate);
+			prepStatement.setTimestamp(2, tsdate);
+			prepStatement.setInt(3, users);
+			
+			resultSet = prepStatement.executeQuery(); //run the query on the DB table
+		   
+			
+			while (resultSet.next()) //this not only keeps track of if another record
+			//exists but moves us forward to the first record
+			{
+			   System.out.println("UserID " +
+				  resultSet.getInt(1) + ", sent and recieved: "  + //since the first item was of type
+				  //string, we use getString of the
+				  //resultSet class to access it.
+				  //Notice the one, that is the
+				  //position of the answer in the
+				  //resulting table
+				  resultSet.getInt(2) + " messages.");
+			}
+			resultSet.close();
+		*/
+		}
+	catch(SQLException Ex) {
+	    System.out.println("Error running the sample queries.  Machine Error: " +
+			       Ex.toString());
+	} catch (ParseException e) {
+		System.out.println("Error parsing the date. Machine Error: " +
+		e.toString());
+	}
+	/*
+	catch (ParseException e) {
+	System.out.println("Exception :" + e);
+	}*/
+	finally{
+		try {
+			if (statement != null) statement.close();
+			if (prepStatement != null) prepStatement.close();
+		} catch (SQLException e) {
+			System.out.println("Cannot close Statement. Machine error: "+e.toString());
+		}
+	}
+ }
+	
+ public static <K, V extends Comparable<? super V>> Map<K, V> 
+        sortByValue( Map<K, V> map )
+    {
+        List<Map.Entry<K, V>> list =
+            new LinkedList<Map.Entry<K, V>>( map.entrySet() );
+        Collections.sort( list, new Comparator<Map.Entry<K, V>>()
+        {
+            public int compare( Map.Entry<K, V> o1, Map.Entry<K, V> o2 )
+            {
+                return (o1.getValue()).compareTo( o2.getValue() );
+            }
+        } );
+
+        Map<K, V> result = new LinkedHashMap<K, V>();
+        for (Map.Entry<K, V> entry : list)
+        {
+            result.put( entry.getKey(), entry.getValue() );
+        }
+        return result;
+    }
 	
 	//function to send message to user
 	public void sendMessageToUser(String subj, String body, int recipiet, int sender){
@@ -217,3 +368,4 @@ public class FaceSpace {
     }
 	
 }
+
