@@ -10,5 +10,5 @@ displayMessages:	Dave
 displayNewMessages:	Dave
 searchForUser:		John
 threeDegrees:		John
-topMessages:		Eli - just starting
+topMessages:		Eli
 dropUser:		Dave

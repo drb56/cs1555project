@@ -229,13 +229,13 @@ public class FaceSpace {
 //		}
 	}
         
-        public static java.sql.Date convertFromJAVADateToSQLDate(java.util.Date javaDate) {
-            java.sql.Date sqlDate = null;
-            if (javaDate != null) {
-                sqlDate = new Date(javaDate.getTime());
-            }
-            return sqlDate;
-        }
+//        public static java.sql.Date convertFromJAVADateToSQLDate(java.util.Date javaDate) {
+//            java.sql.Date sqlDate = null;
+//            if (javaDate != null) {
+//                sqlDate = new Date(javaDate.getTime());
+//            }
+//            return sqlDate;
+//        }
         
 
         public static User threeDegrees(Connection conn, int userID1, int userID2) throws SQLException{
@@ -397,8 +397,8 @@ public class FaceSpace {
             
             try{
                 if(parsedDate != null){
-                    parsed_dates.add(convertFromJAVADateToSQLDate(parsedDate));
-//                    parsed_dates.add(tsdate);
+//                    parsed_dates.add(convertFromJAVADateToSQLDate(parsedDate));
+                    parsed_dates.add(tsdate);
                     System.out.println("parsed a date with: ");
                     System.out.println(elements[i]);
                 }
@@ -473,7 +473,7 @@ public class FaceSpace {
             queryToPrint = queryToPrint.replaceFirst("\\?", parsed_strings.get(z));
         }
         for(z=0; z < parsed_dates.size(); i++, z++){
-            statement.setDate(i, parsed_dates.get(z));
+            statement.setDate(i, (java.sql.Date)parsed_dates.get(z));
             queryToPrint = queryToPrint.replaceFirst("\\?", parsed_dates.get(z).toString());
         }
         for(z=0; z < parsed_numbers.size(); i++, z++){
@@ -834,32 +834,32 @@ public class FaceSpace {
 			//create a connection to DB on class3.cs.pitt.edu
 			Connection connection = DriverManager.getConnection(url, username, password); 
 //			FaceSpace demo = new FaceSpace();
-//                        System.out.println("dropUser");
-//                        dropUser(connection, 17);
-//                        System.out.println("createUser");
-//                        createUser(connection, "abcde", "abcde", "elkjlkj", "2012-02-24");
-//                        System.out.println("initiateFriendship");
-//                        initiateFriendship(connection, "2015-03-10", 0, 8, 9);
-//                        System.out.println("establishFriendship");
-//                        establishFriendship(connection, 201);
-//                        System.out.println("displayMessages");
-//                        displayMessages(connection, 64);
-//                        System.out.println("distplayNewMessages");
-//                        displayNewMessages(connection, 34);
-//                        System.out.println("sendToGroup");
-//                        sendToGroup(connection, 3, 12, "blerg", "blahblah");
-//                        System.out.println("displayFriends");
-//                        displayFriends(connection, 8);
-//                        System.out.println("searchForUser");
-//                        searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
-//                        System.out.println("threeDegrees");
-//                        threeDegrees(connection, 3, 12);
-//                        System.out.println("createGroup");
-//                        createGroup(connection, "blah", "test", 30);
-//                        System.out.println("addToGroup");
-//                        addToGroup(connection, 6, 8);
-//                        System.out.println("sendMessageToUser");
-//                        sendMessageToUser(connection, "blahblah", "blerg", 9, 8);
+                        System.out.println("dropUser");
+                        dropUser(connection, 17);
+                        System.out.println("createUser");
+                        createUser(connection, "abcde", "abcde", "elkjlkj", "2012-02-24");
+                        System.out.println("initiateFriendship");
+                        initiateFriendship(connection, "2015-03-10", 0, 8, 9);
+                        System.out.println("establishFriendship");
+                        establishFriendship(connection, 201);
+                        System.out.println("displayMessages");
+                        displayMessages(connection, 64);
+                        System.out.println("distplayNewMessages");
+                        displayNewMessages(connection, 34);
+                        System.out.println("sendToGroup");
+                        sendToGroup(connection, 3, 12, "blerg", "blahblah");
+                        System.out.println("displayFriends");
+                        displayFriends(connection, 8);
+                        System.out.println("searchForUser");
+                        searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
+                        System.out.println("threeDegrees");
+                        threeDegrees(connection, 3, 12);
+                        System.out.println("createGroup");
+                        createGroup(connection, "blah", "test", 30);
+                        System.out.println("addToGroup");
+                        addToGroup(connection, 6, 8);
+                        System.out.println("sendMessageToUser");
+                        sendMessageToUser(connection, "blahblah", "blerg", 9, 8);
                         System.out.println("topMessagers");
                         topMessagers(connection, 3, "2015/01/01");
                         connection.close();
