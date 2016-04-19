@@ -702,3 +702,4 @@ INSERT INTO Members VALUES('5', '7');
 INSERT INTO Members VALUES('4', '16');
 INSERT INTO Members VALUES('8', '45');
 INSERT INTO Members VALUES('5', '95');
+commit;
