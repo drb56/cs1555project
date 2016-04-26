@@ -37,7 +37,7 @@ END;
 
 --CREATE FRIENDS TABLE
 CREATE TABLE Friends(
-		friendDate 				TIMESTAMP NOT NULL,
+		friendDate 				DATE,
 		friendStatus 			NUMBER(1) NOT NULL,
 		userID1 				NUMBER(10) NOT NULL,
 		userID2 				NUMBER(10) NOT NULL,
@@ -46,6 +46,26 @@ CREATE TABLE Friends(
 		FOREIGN KEY(userID1) REFERENCES users(userID),
 		FOREIGN KEY(userID2) REFERENCES users(userID)
 );
+
+CREATE OR REPLACE TRIGGER ensure_unique_friendship
+BEFORE INSERT ON friends
+FOR EACH ROW
+
+DECLARE
+  l_friendstatus NUMBER;
+  friendship_exists EXCEPTION;
+BEGIN
+  SELECT userID1 INTO l_friendstatus FROM Friends WHERE (userID1 = :new.userID1 AND userID2 = :new.userID2) OR (userID1 = :new.userID2 AND userID2 = :new.userID1);
+  IF (l_friendstatus IS NOT NULL) THEN
+    RAISE friendship_exists;
+  END IF;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+  	NULL;
+    
+END;
+/
+
 
 --FRIENDS SEQUENCE
 CREATE SEQUENCE friends_seq;
@@ -94,26 +114,6 @@ CREATE TABLE Members(
 		FOREIGN KEY(groupID) REFERENCES groups(groupID),
 		FOREIGN KEY(userID) REFERENCES users(userID)
 );
-
---@FaceSpace.sql
-
---GROUP LIMIT TRIGGER 
-CREATE OR REPLACE TRIGGER group_limit
-BEFORE INSERT OR UPDATE ON Members
-FOR EACH ROW
-declare 
-	memcnt Number;
-	lim Number;
-	groupLimitReached_Exc EXCEPTION;
-BEGIN
-select count (*) into memcnt from Members where groupID = :NEW.groupID;
-Select personLimit into lim from Groups where groupID = :NEW.groupID;
-if memcnt = lim then
-RAISE groupLimitReached_Exc;
-end if;
-END;
-/
-
 --here we a assuming that when a user sends a message to a group it sends the message to 
 --everyone within the group
 --CREATE MESSAGES TABLE
@@ -125,7 +125,7 @@ CREATE TABLE Messages(
 		recipientID 			NUMBER(10),
 		msgID 					NUMBER(10),
 		PRIMARY KEY(msgID),
-		FOREIGN KEY(senderID) REFERENCES users(userID),
+		-- FOREIGN KEY(senderID) REFERENCES users(userID),
 		FOREIGN KEY(recipientID) REFERENCES users(userID)
 );
 
@@ -141,5 +141,22 @@ BEGIN
   SELECT messages_seq.NEXTVAL
   INTO   :new.msgID
   FROM   dual;
+END;
+/
+
+
+
+
+--Trigger for dropUser() function
+CREATE OR REPLACE TRIGGER dropUserTrigger
+    BEFORE DELETE ON Users
+    FOR EACH ROW
+BEGIN
+    DELETE FROM Members
+    WHERE :old.userID = userID;
+    DELETE FROM Friends
+    WHERE :old.userID = userID1 OR :old.userID = userID2;
+    DELETE FROM Messages
+    WHERE :old.userID = recipientID;
 END;
 /
