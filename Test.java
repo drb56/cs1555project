@@ -133,7 +133,7 @@ public class Test {
         return true;
     }
     
-    public static boolean testEstablishFriendship(Connection connection){
+    public static boolean testEstablishFriendship(Connection connection) throws SQLException{
         for(int i = 0; i < 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.establishFriendship(connection, 201)){
