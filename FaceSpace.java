@@ -99,6 +99,8 @@ public class FaceSpace {
 				}
 				hm.values().removeAll(Collections.singleton(maxValueInMap));
 			}
+                        prepStatement.close();
+                        statement.close();
 		}
 	catch(SQLException Ex) {
 	    System.out.println("Error running the sample queries.  Machine Error: " +
@@ -142,6 +144,7 @@ public class FaceSpace {
 			// executeUpdate for insertions and updates instead of executeQuery for 
 			// selections.
 			prepStatement.executeUpdate();
+                        prepStatement.close();
 		}
 		catch(SQLException Ex) {
 	    System.out.println("Error running the sample queries.  Machine Error: " +
@@ -176,6 +179,7 @@ public class FaceSpace {
 			// executeUpdate for insertions and updates instead of executeQuery for 
 			// selections.
 			prepStatement.executeUpdate();
+                        prepStatement.close();
 		}
 		catch(SQLException Ex) {
 	    System.out.println("Error running the sample queries.  Machine Error: " +
@@ -195,9 +199,9 @@ public class FaceSpace {
 	}
 	
 	//function to create Group
-	public static void createGroup(Connection connection, String name, String descr, int membLimit){
+	public static boolean createGroup(Connection connection, String name, String descr, int membLimit){
 		try{
-			String query = "insert into Groups(name ,description, personLimit ) values (?,?,?)";
+			String query = "insert into Groups(name, description, personLimit ) values (?,?,?)";
 			PreparedStatement prepStatement = connection.prepareStatement(query);
 			
 			// You need to specify which question mark to replace with a value.
@@ -211,10 +215,13 @@ public class FaceSpace {
 			// executeUpdate for insertions and updates instead of executeQuery for 
 			// selections.
 			prepStatement.executeUpdate();
+                        prepStatement.close();
+                        return true;
 		}
 		catch(SQLException Ex) {
-	    System.out.println("Error running the sample queries.  Machine Error: " +
+                    System.out.println("Error running the sample queries.  Machine Error: " +
 			       Ex.toString());
+                    return false;
 		}/* catch (ParseException e) {
 			System.out.println("Error parsing the date. Machine Error: " +
 			e.toString());
@@ -644,6 +651,7 @@ public class FaceSpace {
                 return false;
             }
         }
+        
         return succeeded;
     }
         
@@ -677,6 +685,7 @@ public class FaceSpace {
                 String query = "DELETE FROM users WHERE userID = " + Integer.toString(userID);
                 Statement prepStatement = connection.prepareStatement(query);
                 prepStatement.executeUpdate(query);
+                prepStatement.close();
             }catch(SQLException Ex) {
                 System.out.println("Error running the sample queries.  Machine Error: " +
 			       Ex.toString());
@@ -690,6 +699,7 @@ public class FaceSpace {
                 String query = "UPDATE friends SET friendStatus = 1 WHERE friendID = " + Integer.toString(userID);
                 Statement prepStatement = connection.prepareStatement(query);
                 prepStatement.executeUpdate(query);
+                prepStatement.close();
             }catch(SQLException Ex) {
                 System.out.println("Error running the sample queries.  Machine Error: " +
 			       Ex.toString());
@@ -717,6 +727,7 @@ public class FaceSpace {
                                 + "\nMessageText: " + resultSet.getString(2));
                     }
                     resultSet.close();
+                    statement.close();
                 }
                 else{
                     System.out.println("Sorry, there is no user with that ID.");
@@ -745,6 +756,7 @@ public class FaceSpace {
                                 + "\nMessageText: " + resultSet.getString(2));
                     }
                     resultSet.close();
+                    statement.close();
                 }
                 else{
                     System.out.println("Sorry, there is no user with that ID.");
@@ -773,13 +785,14 @@ public class FaceSpace {
 
 
                 prepStatement.executeUpdate();
+                prepStatement.close();
             }
             catch(SQLException Ex) {
             }
         }
 	
 	//function to create user. sets last login to current time
-	public static void createUser(Connection connection, String fname, String lname, String email, String dob){
+	public static boolean createUser(Connection connection, String fname, String lname, String email, String dob){
 		try{
 			String query = "insert into Users(fname, lname, email, dateOfBirth, lastLogin) values (?,?,?,?,?)";
                         
@@ -799,13 +812,17 @@ public class FaceSpace {
 			prepStatement.setTimestamp(5, lastLogin);
 			
 			prepStatement.executeUpdate();
+                        prepStatement.close();
+                        return true;
 		}
 		catch(SQLException Ex) {
-	    System.out.println("Error running the sample queries.  Machine Error: " +
+                    System.out.println("Error running the sample queries.  Machine Error: " +
 			       Ex.toString());
+                    return false;
 		} catch (ParseException e) {
 			System.out.println("Error parsing the date. Machine Error: " +
 			e.toString());
+                        return false;
 		}
 	}
 
@@ -829,36 +846,35 @@ public class FaceSpace {
 			System.out.println("Connect to DB..");
 			//create a connection to DB on class3.cs.pitt.edu
 			Connection connection = DriverManager.getConnection(url, username, password); 
-			FaceSpace demo = new FaceSpace();
-                        System.out.println("dropUser");
-                        dropUser(connection, 17);
-                        System.out.println("createUser");
-                        createUser(connection, "abcde", "abcde", "elkjlkj", "2012-02-24");
-                        System.out.println("initiateFriendship");
-                        initiateFriendship(connection, "2015-03-10", 0, 8, 9);
-                        System.out.println("establishFriendship");
-                        establishFriendship(connection, 201);
-                        System.out.println("displayMessages");
-                        displayMessages(connection, 64);
-                        System.out.println("distplayNewMessages");
-                        displayNewMessages(connection, 34);
-                        System.out.println("sendToGroup");
-                        sendToGroup(connection, 3, 12, "blerg", "blahblah");
-                        System.out.println("displayFriends");
-                        displayFriends(connection, 8);
-                        System.out.println("searchForUser");
-                        searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
-                        System.out.println("threeDegrees");
-                        threeDegrees(connection, 3, 12);
-                        System.out.println("createGroup");
-                        createGroup(connection, "blah", "test", 30);
-                        System.out.println("addToGroup");
-                        addToGroup(connection, 6, 8);
-                        System.out.println("sendMessageToUser");
-                        sendMessageToUser(connection, "blahblah", "blerg", 9, 8);
-                        System.out.println("topMessagers");
-                        topMessagers(connection, 3, "2015/01/01");
-//                        Test test1 = new Test();
+//			FaceSpace demo = new FaceSpace();
+//                        System.out.println("dropUser");
+//                        dropUser(connection, 17);
+//                        System.out.println("createUser");
+//                        createUser(connection, "abcde", "abcde", "elkjlkj", "2012-02-24");
+//                        System.out.println("initiateFriendship");
+//                        initiateFriendship(connection, "2015-03-10", 0, 8, 9);
+//                        System.out.println("establishFriendship");
+//                        establishFriendship(connection, 201);
+//                        System.out.println("displayMessages");
+//                        displayMessages(connection, 64);
+//                        System.out.println("distplayNewMessages");
+//                        displayNewMessages(connection, 34);
+//                        System.out.println("sendToGroup");
+//                        sendToGroup(connection, 3, 12, "blerg", "blahblah");
+//                        System.out.println("displayFriends");
+//                        displayFriends(connection, 8);
+//                        System.out.println("searchForUser");
+//                        searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
+//                        System.out.println("threeDegrees");
+//                        threeDegrees(connection, 3, 12);
+//                        System.out.println("createGroup");
+//                        createGroup(connection, "blah", "test", 30);
+//                        System.out.println("addToGroup");
+//                        addToGroup(connection, 6, 8);
+//                        System.out.println("sendMessageToUser");
+//                        sendMessageToUser(connection, "blahblah", "blerg", 9, 8);
+//                        System.out.println("topMessagers");
+//                        topMessagers(connection, 3, "2015/01/01");
                         connection.close();
 			
 		}
@@ -875,6 +891,8 @@ public class FaceSpace {
 //			connection.close();
 		}
     }
+        
+        
         
         public static  class User{
 
