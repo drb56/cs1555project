@@ -55,7 +55,7 @@ public class Test {
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
                 }
                 
-                System.out.println("Stress testing initiateFriendship: ");
+                System.out.println("Stress testing establishFriendship: ");
                 if(testEstablishFriendship(connection)){
                     System.out.println("\tStress test succeeded!");
                 }
@@ -97,7 +97,7 @@ public class Test {
         return true;
     }
     
-    public static boolean testSendMessageToGroup(Connection connection){
+    public static boolean testSendMessageToGroup(Connection connection) throws SQLException{
         for(int i = 0; i < 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.sendMessageToGroup(connection, i, i, "blerg", "blahblah")){

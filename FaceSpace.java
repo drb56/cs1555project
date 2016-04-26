@@ -100,8 +100,8 @@ public class FaceSpace {
 			}
 			hm.values().removeAll(Collections.singleton(maxValueInMap));
 		}
-					prepStatement.close();
-					statement.close();
+                prepStatement.close();
+                statement.close();
 		return resultStrings;
 	}
 	catch(SQLException Ex) {
@@ -189,8 +189,8 @@ public class FaceSpace {
 			// executeUpdate for insertions and updates instead of executeQuery for 
 			// selections.
 			prepStatement.executeUpdate();
-						prepStatement.close();
-						return true;
+                        prepStatement.close();
+                        return true;
 		}
 		catch(SQLException Ex) {
 					System.out.println("Error running the sample queries.  Machine Error: " +
@@ -319,7 +319,10 @@ public class FaceSpace {
 		}
 
 		System.out.println("The intermediary friends to get from " + userID1 + " to " + userID2 + " are [" + middle_friends_text + "]");
-
+                statement.close();
+                friendships.close();
+                secondQuery.close();
+                secondResult.close();
 		return middle_friends;
 
 
@@ -487,7 +490,8 @@ public class FaceSpace {
 			System.out.println("no users found!");
 			return new ArrayList<User>();
 		}
-
+                statement.close();
+                users.close();
 		return foundUsers;
 
 	}
@@ -531,6 +535,8 @@ public class FaceSpace {
                                 + "\nfriendID: " + friendships.getString(5)
                                 + "\n\n");
                 }
+                statement.close();
+                friendships.close();
                 return friendships_list;
         }
         catch(Exception Ex)  {
@@ -542,7 +548,7 @@ public class FaceSpace {
 }
 
         //sends a message to a group
-        public static boolean sendMessageToGroup(Connection conn, int groupID, int senderID, String subject, String message){
+        public static boolean sendMessageToGroup(Connection conn, int groupID, int senderID, String subject, String message) throws SQLException{
         String query = "SELECT userID FROM Members WHERE GroupID = ?";
         String generatedColumns[] = {"userID"};
 
@@ -570,8 +576,8 @@ public class FaceSpace {
                         }
                 }
                 messageInputString += ")";
-                System.out.println("user ids to send to: " + messageInputString);
-
+//                System.out.println("user ids to send to: " + messageInputString);
+                statement.close();
 
         }
         catch(Exception Ex)  {
@@ -594,6 +600,7 @@ public class FaceSpace {
                         statement.setInt(4, senderID);
                         statement.setInt(5, usersForQuery.get(i));
                         inserts.add(statement);
+                        statement.close();
                 }
                 catch(Exception Ex)  {
                         System.out.println("Error submitting to database.  Machine Error: " +
@@ -618,6 +625,7 @@ public class FaceSpace {
                                 Ex.toString());
                         return false;
                 }
+                statement.close();
         }
 
         return succeeded;
