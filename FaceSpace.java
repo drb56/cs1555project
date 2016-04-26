@@ -1,5 +1,3 @@
-
-
 import java.sql.*;  //import the file containing definitions for the parts
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -11,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Date;
 import oracle.jdbc.*; //needed by java for database connection and manipulation
-					
+
 public class FaceSpace {
 //    private static Connection connection; //used to hold the jdbc connection to the DB
 //    private Statement statement; //used to create an instance of the connection
@@ -496,268 +494,268 @@ public class FaceSpace {
 
 
 
-		// returns an arraylist of friendships that include userID as one of the friendIDs
-		public static ArrayList<Friendship> displayFriends(Connection conn, int userID){
-		Statement friendsQuery = null;
-		try{
-			String query = "SELECT * FROM Friends WHERE userID1 = ? OR userID2 = ?";
-			String generatedColumns[] = { "FriendDate",  "FriendStatus", "userID1", "userID2", "friendID"};
-			PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
+        // returns an arraylist of friendships that include userID as one of the friendIDs
+        public static ArrayList<Friendship> displayFriends(Connection conn, int userID){
+        Statement friendsQuery = null;
+        try{
+                String query = "SELECT * FROM Friends WHERE userID1 = ? OR userID2 = ?";
+                String generatedColumns[] = { "FriendDate",  "FriendStatus", "userID1", "userID2", "friendID"};
+                PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
 
-			statement.setInt(1, userID);
-			statement.setInt(2, userID);
-			
-			ResultSet friendships;
-			if(statement.execute()){
-				friendships = statement.getResultSet();
+                statement.setInt(1, userID);
+                statement.setInt(2, userID);
 
-			}
-			else{
-				System.out.println("Error with query.  Statement execute returned false.");
-				return null;
-			}
-			ArrayList<Friendship> friendships_list = new ArrayList<Friendship>();
+                ResultSet friendships;
+                if(statement.execute()){
+                        friendships = statement.getResultSet();
 
-			while(friendships.next()){
-				//rs = stmt.getGeneratedKeys();
-				String friendDate = friendships.getDate(1).toString();
-				boolean status = (friendships.getInt(2) == 0)? false:true;
-				Friendship next_friend = new Friendship(friendDate, friendships.getInt(3), friendships.getInt(4), status);
+                }
+                else{
+                        System.out.println("Error with query.  Statement execute returned false.");
+                        return null;
+                }
+                ArrayList<Friendship> friendships_list = new ArrayList<Friendship>();
 
-				friendships_list.add(next_friend);
+                while(friendships.next()){
+                        //rs = stmt.getGeneratedKeys();
+                        String friendDate = friendships.getDate(1).toString();
+                        boolean status = (friendships.getInt(2) == 0)? false:true;
+                        Friendship next_friend = new Friendship(friendDate, friendships.getInt(3), friendships.getInt(4), status);
 
-				System.out.println("FriendDate: " + friendships.getDate(1)
-					+ "\nFriendStatus: " + friendships.getInt(2)
-					+ "\nuserID1: " + friendships.getInt(3)
-					+ "\nuserID2: " + friendships.getInt(4)
-					+ "\nfriendID: " + friendships.getString(5)
-					+ "\n\n");
-			}
-			return friendships_list;
-		}
-		catch(Exception Ex)  {
-			System.out.println("Error querying database.  Machine Error: " +
-				Ex.toString());
-			return null;
-		}
+                        friendships_list.add(next_friend);
 
-	}
+                        System.out.println("FriendDate: " + friendships.getDate(1)
+                                + "\nFriendStatus: " + friendships.getInt(2)
+                                + "\nuserID1: " + friendships.getInt(3)
+                                + "\nuserID2: " + friendships.getInt(4)
+                                + "\nfriendID: " + friendships.getString(5)
+                                + "\n\n");
+                }
+                return friendships_list;
+        }
+        catch(Exception Ex)  {
+                System.out.println("Error querying database.  Machine Error: " +
+                        Ex.toString());
+                return null;
+        }
 
-		//sends a message to a group
-		public static boolean sendToGroup(Connection conn, int groupID, int senderID, String subject, String message){
-		String query = "SELECT userID FROM Members WHERE GroupID = ?";
-		String generatedColumns[] = {"userID"};
+}
 
-		ArrayList<Integer> usersForQuery = new ArrayList<Integer>();
-		try{
-			PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
-			statement.setInt(1, groupID);
-			ResultSet usersInGroup;
+        //sends a message to a group
+        public static boolean sendMessageToGroup(Connection conn, int groupID, int senderID, String subject, String message){
+        String query = "SELECT userID FROM Members WHERE GroupID = ?";
+        String generatedColumns[] = {"userID"};
 
-			if (statement.execute()){
-				usersInGroup = statement.getResultSet();
-			}
-			else{
-				System.out.println("That group has no members.");
-				return false;
-			}
-			String messageInputString = "(";
-			while(usersInGroup.next()){
-				usersForQuery.add(usersInGroup.getInt(1));
-			}
-			for(int i =0; i < usersForQuery.size(); i++){
-				messageInputString += usersForQuery.get(i);
-				if(i < usersForQuery.size() - 1){
-					messageInputString += ", ";
-				}
-			}
-			messageInputString += ")";
-			System.out.println("user ids to send to: " + messageInputString);
+        ArrayList<Integer> usersForQuery = new ArrayList<Integer>();
+        try{
+                PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
+                statement.setInt(1, groupID);
+                ResultSet usersInGroup;
 
-
-		}
-		catch(Exception Ex)  {
-			System.out.println("Error querying database.  Machine Error: " +
-				Ex.toString());
-			return false;
-		}
-
-		ArrayList<PreparedStatement> inserts = new ArrayList<PreparedStatement>();
-		java.util.Date utilDate = new java.util.Date();
-		java.sql.Timestamp dateSent = new java.sql.Timestamp(utilDate.getTime());
-
-		for(int i = 0; i < usersForQuery.size(); i++){
-			query = "INSERT INTO Messages(subject, msgText, dateSent, senderID, recipientID) VALUES(?, ?, ?, ?, ?)";
-			try{
-				PreparedStatement statement = conn.prepareStatement(query);
-				statement.setString(1, subject);
-				statement.setString(2, message);
-				statement.setTimestamp(3, dateSent);
-				statement.setInt(4, senderID);
-				statement.setInt(5, usersForQuery.get(i));
-				inserts.add(statement);
-			}
-			catch(Exception Ex)  {
-				System.out.println("Error submitting to database.  Machine Error: " +
-					Ex.toString());
-				return false;
-			}
-		}
-
-		boolean succeeded = true;
+                if (statement.execute()){
+                        usersInGroup = statement.getResultSet();
+                }
+                else{
+                        System.out.println("That group has no members.");
+                        return false;
+                }
+                String messageInputString = "(";
+                while(usersInGroup.next()){
+                        usersForQuery.add(usersInGroup.getInt(1));
+                }
+                for(int i =0; i < usersForQuery.size(); i++){
+                        messageInputString += usersForQuery.get(i);
+                        if(i < usersForQuery.size() - 1){
+                                messageInputString += ", ";
+                        }
+                }
+                messageInputString += ")";
+                System.out.println("user ids to send to: " + messageInputString);
 
 
-		for(int i = 0; i < inserts.size(); i++){
+        }
+        catch(Exception Ex)  {
+                System.out.println("Error querying database.  Machine Error: " +
+                        Ex.toString());
+                return false;
+        }
 
-			PreparedStatement statement = inserts.get(i);
-			try{
-				int result = statement.executeUpdate();
-				System.out.println("the insert returned a result of:");
-				System.out.println(result);
-			}
-			catch(Exception Ex)  {
-				System.out.println("Error submitting to database.  Machine Error: " +
-					Ex.toString());
-				return false;
-			}
-		}
-		
-		return succeeded;
-	}
-		
-		private static java.util.Date parseDate(String dateString, String[] formats)
-		{
-			java.util.Date date = null;
-			boolean success = false;
+        ArrayList<PreparedStatement> inserts = new ArrayList<PreparedStatement>();
+        java.util.Date utilDate = new java.util.Date();
+        java.sql.Timestamp dateSent = new java.sql.Timestamp(utilDate.getTime());
 
-			for (int i = 0; i < formats.length; i++)
-			{
-				String format = formats[i];
-				SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        for(int i = 0; i < usersForQuery.size(); i++){
+                query = "INSERT INTO Messages(subject, msgText, dateSent, senderID, recipientID) VALUES(?, ?, ?, ?, ?)";
+                try{
+                        PreparedStatement statement = conn.prepareStatement(query);
+                        statement.setString(1, subject);
+                        statement.setString(2, message);
+                        statement.setTimestamp(3, dateSent);
+                        statement.setInt(4, senderID);
+                        statement.setInt(5, usersForQuery.get(i));
+                        inserts.add(statement);
+                }
+                catch(Exception Ex)  {
+                        System.out.println("Error submitting to database.  Machine Error: " +
+                                Ex.toString());
+                        return false;
+                }
+        }
 
-				try
-				{
-					date = dateFormat.parse(dateString);
-					success = true;
-					break;
-				}
-				catch(ParseException e)
-				{
-					
-				}
-			}
-
-			return date;
-		}
-		
-		public static boolean dropUser(Connection connection, int userID){
-			try{
-				String query = "DELETE FROM users WHERE userID = " + Integer.toString(userID);
-				Statement prepStatement = connection.prepareStatement(query);
-				prepStatement.executeUpdate(query);
-				prepStatement.close();
-				return true;
-			}catch(SQLException Ex) {
-				System.out.println("Error running the sample queries.  Machine Error: " +
-				   Ex.toString());
-				return false;
-			}
-			
-			
-		}
-		
-		public static boolean establishFriendship(Connection connection, int userID) throws SQLException{
-			try{
-				String query = "UPDATE friends SET friendStatus = 1 WHERE friendID = " + Integer.toString(userID);
-				Statement prepStatement = connection.prepareStatement(query);
-				prepStatement.executeUpdate(query);
-				prepStatement.close();
-				return true;
-			}catch(SQLException Ex) {
-				System.out.println("Error running the sample queries.  Machine Error: " +
-				   Ex.toString());
-				return false;
-			}
-		}
-		
-		public static ArrayList<String> displayNewMessages(Connection connection, int userID){
-			
-			try{
-				String ID = Integer.toString(userID);
-				String query = "SELECT M.subject, M.msgText, M.dateSent, M.senderID, M.recipientID, M.msgID\n" +
-							"FROM Messages M, Users U\n" +
-							"WHERE M.dateSent > U.lastLogin AND M.recipientID = " + ID;
-				
-				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery(query);
-				ArrayList<String> newMessages = new ArrayList<String>();
-				
-				if(resultSet != null){
-					while (resultSet.next()){
-						String newMessage = "\n\nmsgID: " + resultSet.getString(6)
-								+ "\nSenderID: " + resultSet.getInt(4)
-								+ "\nRecipientID: " + resultSet.getInt(5)
-								+ "\nDateSent: " + resultSet.getDate(3)
-								+ "\nSubject: " + resultSet.getString(1)
-								+ "\nMessageText: " + resultSet.getString(2);
-						newMessages.add(newMessage);
-						System.out.println(newMessage);
-					}
-					resultSet.close();
-					statement.close();
-					return newMessages;
-				}
-				else{
-					System.out.println("Sorry, there is no user with that ID.");
-					return new ArrayList<String>();
-				}
-				
-			}catch(SQLException Ex) {
-				System.out.println("Error running the sample queries.  Machine Error: blerg" +
-				   Ex.toString());
-				return null;
-			}
-		}
-		
-		public static ArrayList<String> displayMessages(Connection connection, int userID){
-			try{
-				String query = "SELECT * FROM messages WHERE recipientID = " + Integer.toString(userID);
-				
-				Statement statement = connection.createStatement();
-				ResultSet resultSet = statement.executeQuery(query);
-				
-
-				ArrayList<String> messages = new ArrayList<String>();
-
-				if(resultSet != null){
-					while (resultSet.next()){
-						String message = "\n\nmsgID: " + resultSet.getString(6)
-								+ "\nSenderID: " + resultSet.getInt(4)
-								+ "\nRecipientID: " + resultSet.getInt(5)
-								+ "\nDateSent: " + resultSet.getDate(3)
-								+ "\nSubject: " + resultSet.getString(1)
-								+ "\nMessageText: " + resultSet.getString(2);
-						messages.add(message);
-
-					}
-					resultSet.close();
-					statement.close();
-					return messages;
-				}
-				else{
-					System.out.println("Sorry, there is no user with that ID.");
-					return new ArrayList<String>();
-				}
-				
-			}catch(SQLException Ex) {
-				System.out.println("Error running the sample queries.  Machine Error: blerg" +
-				   Ex.toString());
-				return null;
-			}
-		}
+        boolean succeeded = true;
 
 
-		public static boolean initiateFriendship(Connection connection, String friendDate, int friendStatus, int userID1, int userID2) throws ParseException{
+        for(int i = 0; i < inserts.size(); i++){
+
+                PreparedStatement statement = inserts.get(i);
+                try{
+                        int result = statement.executeUpdate();
+                        System.out.println("the insert returned a result of:");
+                        System.out.println(result);
+                }
+                catch(Exception Ex)  {
+                        System.out.println("Error submitting to database.  Machine Error: " +
+                                Ex.toString());
+                        return false;
+                }
+        }
+
+        return succeeded;
+}
+
+        private static java.util.Date parseDate(String dateString, String[] formats)
+        {
+                java.util.Date date = null;
+                boolean success = false;
+
+                for (int i = 0; i < formats.length; i++)
+                {
+                        String format = formats[i];
+                        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+
+                        try
+                        {
+                                date = dateFormat.parse(dateString);
+                                success = true;
+                                break;
+                        }
+                        catch(ParseException e)
+                        {
+
+                        }
+                }
+
+                return date;
+        }
+
+        public static boolean dropUser(Connection connection, int userID){
+                try{
+                        String query = "DELETE FROM users WHERE userID = " + Integer.toString(userID);
+                        Statement prepStatement = connection.prepareStatement(query);
+                        prepStatement.executeUpdate(query);
+                        prepStatement.close();
+                        return true;
+                }catch(SQLException Ex) {
+                        System.out.println("Error running the sample queries.  Machine Error: " +
+                           Ex.toString());
+                        return false;
+                }
+
+
+        }
+
+        public static boolean establishFriendship(Connection connection, int userID) throws SQLException{
+                try{
+                        String query = "UPDATE friends SET friendStatus = 1 WHERE friendID = " + Integer.toString(userID);
+                        Statement prepStatement = connection.prepareStatement(query);
+                        prepStatement.executeUpdate(query);
+                        prepStatement.close();
+                        return true;
+                }catch(SQLException Ex) {
+                        System.out.println("Error running the sample queries.  Machine Error: " +
+                           Ex.toString());
+                        return false;
+                }
+        }
+
+        public static ArrayList<String> displayNewMessages(Connection connection, int userID){
+
+                try{
+                        String ID = Integer.toString(userID);
+                        String query = "SELECT M.subject, M.msgText, M.dateSent, M.senderID, M.recipientID, M.msgID\n" +
+                                                "FROM Messages M, Users U\n" +
+                                                "WHERE M.dateSent > U.lastLogin AND M.recipientID = " + ID;
+
+                        Statement statement = connection.createStatement();
+                        ResultSet resultSet = statement.executeQuery(query);
+                        ArrayList<String> newMessages = new ArrayList<String>();
+
+                        if(resultSet != null){
+                                while (resultSet.next()){
+                                        String newMessage = "\n\nmsgID: " + resultSet.getString(6)
+                                                        + "\nSenderID: " + resultSet.getInt(4)
+                                                        + "\nRecipientID: " + resultSet.getInt(5)
+                                                        + "\nDateSent: " + resultSet.getDate(3)
+                                                        + "\nSubject: " + resultSet.getString(1)
+                                                        + "\nMessageText: " + resultSet.getString(2);
+                                        newMessages.add(newMessage);
+                                        System.out.println(newMessage);
+                                }
+                                resultSet.close();
+                                statement.close();
+                                return newMessages;
+                        }
+                        else{
+                                System.out.println("Sorry, there is no user with that ID.");
+                                return new ArrayList<String>();
+                        }
+
+                }catch(SQLException Ex) {
+                        System.out.println("Error running the sample queries.  Machine Error: blerg" +
+                           Ex.toString());
+                        return null;
+                }
+        }
+
+        public static ArrayList<String> displayMessages(Connection connection, int userID){
+                try{
+                        String query = "SELECT * FROM messages WHERE recipientID = " + Integer.toString(userID);
+
+                        Statement statement = connection.createStatement();
+                        ResultSet resultSet = statement.executeQuery(query);
+
+
+                        ArrayList<String> messages = new ArrayList<String>();
+
+                        if(resultSet != null){
+                                while (resultSet.next()){
+                                        String message = "\n\nmsgID: " + resultSet.getString(6)
+                                                        + "\nSenderID: " + resultSet.getInt(4)
+                                                        + "\nRecipientID: " + resultSet.getInt(5)
+                                                        + "\nDateSent: " + resultSet.getDate(3)
+                                                        + "\nSubject: " + resultSet.getString(1)
+                                                        + "\nMessageText: " + resultSet.getString(2);
+                                        messages.add(message);
+
+                                }
+                                resultSet.close();
+                                statement.close();
+                                return messages;
+                        }
+                        else{
+                                System.out.println("Sorry, there is no user with that ID.");
+                                return new ArrayList<String>();
+                        }
+
+                }catch(SQLException Ex) {
+                        System.out.println("Error running the sample queries.  Machine Error: blerg" +
+                           Ex.toString());
+                        return null;
+                }
+        }
+
+
+        public static boolean initiateFriendship(Connection connection, String friendDate, int friendStatus, int userID1, int userID2) throws ParseException{
 			try{
 				String query = "insert into Friends(friendDate, friendStatus, userID1, userID2) values (?,?,?,?)";
 				
@@ -849,8 +847,8 @@ public class FaceSpace {
 //                        displayMessages(connection, 64);
 //                        System.out.println("distplayNewMessages");
 //                        displayNewMessages(connection, 34);
-//                        System.out.println("sendToGroup");
-//                        sendToGroup(connection, 3, 12, "blerg", "blahblah");
+//                        System.out.println("sendMessageToGroup");
+//                        sendMessageToGroup(connection, 3, 12, "blerg", "blahblah");
 //                        System.out.println("displayFriends");
 //                        displayFriends(connection, 8);
 //                        System.out.println("searchForUser");
