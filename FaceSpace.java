@@ -229,19 +229,12 @@ public class FaceSpace {
 //		}
 	}
         
-//        public static java.sql.Date convertFromJAVADateToSQLDate(java.util.Date javaDate) {
-//            java.sql.Date sqlDate = null;
-//            if (javaDate != null) {
-//                sqlDate = new Date(javaDate.getTime());
-//            }
-//            return sqlDate;
-//        }
         
 
         public static User threeDegrees(Connection conn, int userID1, int userID2) throws SQLException{
 
-    //first, get all the firiends of a user
-    Statement friendsQuery = null;
+        //first, get all the firiends of a user
+        Statement friendsQuery = null;
         String query = "SELECT * FROM Friends WHERE userID1 = ? OR userID2 = ?";
         String generatedColumns[] = { "FriendDate",  "FriendStatus", "userID1", "userID2", "friendID"};
         PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
@@ -385,17 +378,22 @@ public class FaceSpace {
 
             Date parsedDate;
             Integer parsedInt;
-            
+            java.sql.Timestamp tsdate = null;
             DateFormat formatter;
             
-
             parsedDate = parseDate(elements[i], datePatterns);
             
+            
             formatter = new SimpleDateFormat("dd/MM/yyyy");
-            Date fdate = (Date) formatter.parse(elements[i]);
-            java.sql.Timestamp tsdate = new java.sql.Timestamp(fdate.getTime());
+            Date fdate = (Date)parseDate(elements[i], datePatterns);
+//            Date fdate = (Date) formatter.parse(elements[i]);
+            
+            
             
             try{
+                if(fdate != null){
+                    tsdate = new java.sql.Timestamp(fdate.getTime());
+                }
                 if(parsedDate != null){
 //                    parsed_dates.add(convertFromJAVADateToSQLDate(parsedDate));
                     parsed_dates.add(tsdate);
@@ -473,7 +471,8 @@ public class FaceSpace {
             queryToPrint = queryToPrint.replaceFirst("\\?", parsed_strings.get(z));
         }
         for(z=0; z < parsed_dates.size(); i++, z++){
-            statement.setDate(i, (java.sql.Date)parsed_dates.get(z));
+            java.sql.Date date = new java.sql.Date(parsed_dates.get(z).getTime());
+            statement.setDate(i, date);
             queryToPrint = queryToPrint.replaceFirst("\\?", parsed_dates.get(z).toString());
         }
         for(z=0; z < parsed_numbers.size(); i++, z++){
@@ -811,9 +810,6 @@ public class FaceSpace {
 	}
 
 	public static void main(String args[]) throws SQLException {
-		/* Making a connection to a DB causes certain exceptions.  In order to handle
-		   these, you either put the DB stuff in a try block or have your function
-		   throw the Exceptions and handle them later. */
 
 		String username, password;
 		username = "drb56"; //This is your username in oracle
@@ -833,7 +829,7 @@ public class FaceSpace {
 			System.out.println("Connect to DB..");
 			//create a connection to DB on class3.cs.pitt.edu
 			Connection connection = DriverManager.getConnection(url, username, password); 
-//			FaceSpace demo = new FaceSpace();
+			FaceSpace demo = new FaceSpace();
                         System.out.println("dropUser");
                         dropUser(connection, 17);
                         System.out.println("createUser");
@@ -862,6 +858,7 @@ public class FaceSpace {
                         sendMessageToUser(connection, "blahblah", "blerg", 9, 8);
                         System.out.println("topMessagers");
                         topMessagers(connection, 3, "2015/01/01");
+//                        Test test1 = new Test();
                         connection.close();
 			
 		}
