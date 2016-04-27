@@ -163,7 +163,7 @@ public class Test {
         return true;
     }
     
-    public static boolean testAddToGroup(Connection connection){
+    public static boolean testAddToGroup(Connection connection) throws SQLException{
         for(int i = minID; i <= minID+3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.addToGroup(connection, 30, i)){

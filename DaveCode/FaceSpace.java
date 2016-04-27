@@ -155,10 +155,11 @@ public class FaceSpace {
 	}
 	
 	//function to addToGroup
-	public static boolean addToGroup(Connection connection, int groupId, int userId){
-		try{
+	public static boolean addToGroup(Connection connection, int groupId, int userId) throws SQLException{
+            PreparedStatement prepStatement = null;	
+            try{
 			String query = "insert into Members values (?,?)";
-			PreparedStatement prepStatement = connection.prepareStatement(query);
+			prepStatement = connection.prepareStatement(query);
 			
 			// You need to specify which question mark to replace with a value.
 			// They are numbered 1 2 3 etc..
@@ -177,6 +178,7 @@ public class FaceSpace {
 		catch(SQLException Ex) {
 //		System.out.println("Error running the sample queries.  Machine Error: " +
 //				   Ex.toString());
+                    prepStatement.close();
 			return false;
 		}
 	}
