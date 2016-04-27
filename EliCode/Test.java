@@ -1,7 +1,9 @@
 
 //import static FaceSpace;
 import java.sql.*;
+import java.text.ParseException;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 
 /**
@@ -17,9 +19,9 @@ public class Test {
         String username, password;
         Scanner reader = new Scanner(System.in);
         System.out.println("Enter your Username: ");
-        username = reader.next();
+        username = "elf62";//reader.next();
         System.out.println("Enter your Password: ");
-        password = reader.next();
+        password = "3981019";//reader.next();
         
 //        username = "drb56"; //This is your username in oracle
 //        password = "Robert098$"; //This is your password in oracle
@@ -38,7 +40,8 @@ public class Test {
                 System.out.println("Connect to DB..");
                 //create a connection to DB on class3.cs.pitt.edu
                 Connection connection = DriverManager.getConnection(url, username, password);
-                
+                connection.setAutoCommit(true);
+            
                 System.out.println("Testing createUser: \n\tNumber of rows before stress test: " + printNumRows(connection, "Users"));
                 if(testCreateUser(connection)){
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Users"));
@@ -49,9 +52,120 @@ public class Test {
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Groups"));
                 }
                 
+           //     System.out.println("Testing initiateFriendship: \n\tNumber of rows before stress test: " + printNumRows(connection, "Friends"));
+           //     if(testInitiateFriendship(connection)){
+           //         System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
+           //     }
+          //      System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
+               
+                System.out.println("Stress testing establishFriendship: ");
+                if(testEstablishFriendship(connection)){
+                    System.out.println("\tStress test succeeded!");
+                }
+                
+                System.out.println("Testing sendMessageToUser: \n\tNumber of rows before stress test: " + printNumRows(connection, "Messages"));
+                if(testSendMessageToUser(connection)){
+                    System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Messages"));
+                }
+               
+                System.out.println("Testing addToGroup: \n\tNumber of rows before stress test: " + printNumRows(connection, "Members"));
+                if(testAddToGroup(connection)){
+                    System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Members"));
+                }
+                
+                System.out.println("Testing sendMessageToGroup: \n\tNumber of rows before stress test: " + printNumRows(connection, "Messages"));
+                if(testSendMessageToGroup(connection)){
+                    System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Messages"));
+                }
+				
+				System.out.println("Testing topMessagers: \n");
+				if(testTopMessagers(connection)){
+					System.out.println("\tStress test succeeded!");
+				}
+              
+                System.out.println("Testing dropUser: \n\tNumber of rows before stress test: " + printNumRows(connection, "Users"));
+                if(testDropUser(connection)){
+                    System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Users"));
+                }
+			
+			
+                
         }catch(Exception e){
             System.out.println("error connecting");
         }
+    }
+	
+    
+    public static boolean testDropUser(Connection connection){
+        for(int i = 1; i <= 3000; i++){
+                                //System.out.println("createUser");
+            if(FaceSpace.dropUser(connection, i)){
+            }
+            else{
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean testSendMessageToGroup(Connection connection) throws SQLException{
+        for(int i = 1; i <= 3000; i++){
+                                //System.out.println("createUser");
+            if(FaceSpace.sendMessageToGroup(connection, i, i, "blerg", "blahblah")){
+            }
+            else{
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean testAddToGroup(Connection connection){
+        for(int i = 1; i <= 3000; i++){
+                                //System.out.println("createUser");
+            if(FaceSpace.addToGroup(connection, i, i)){
+            }
+            else{
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean testSendMessageToUser(Connection connection){
+        for(int i = 1; i <= 3000; i++){
+                                //System.out.println("createUser");
+            if(FaceSpace.sendMessageToUser(connection, "blahblah", "blerg", 9, 8)){
+            }
+            else{
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean testEstablishFriendship(Connection connection) throws SQLException{
+        for(int i = 1; i <= 3000; i++){
+                                //System.out.println("createUser");
+            if(FaceSpace.establishFriendship(connection, 201)){
+            }
+            else{
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean testInitiateFriendship(Connection connection) throws ParseException{
+        for(int i = 1; i <= 3000; i++){
+                                //System.out.println("createUser");
+            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, i, i+1)){
+            }
+//            else{
+//                return false;
+//            }
+        }
+        return true;
     }
     
     private static int printNumRows(Connection connection, String tableName){
@@ -100,6 +214,26 @@ public class Test {
             else{
                 return false;
             }
+        }
+        return true;
+    }
+	
+	 public static boolean testTopMessagers(Connection connection){
+        for(int i = 0; i <= 500; i++){
+                                //System.out.println("createUser");
+			ArrayList<String> list = FaceSpace.topMessagers(connection, 10, "2015/01/01" );
+			
+			if(i == 500){
+				for(int j = 0; j < list.size(); j++){
+					System.out.println(list.get(j));
+				}
+			}
+          /*  if(FaceSpace.TopMessagers(connection, i%100, "2015/01/01" )){
+            }
+            else{
+                return false;
+            }
+		*/
         }
         return true;
     }

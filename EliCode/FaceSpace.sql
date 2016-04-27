@@ -85,7 +85,7 @@ END;
 --CREATE GROUPS TABLE
 CREATE TABLE Groups(
 		name 					VARCHAR2(32) NOT NULL,
-		description 			VARCHAR2(32) NOT NULL,
+		description 			VARCHAR2(128) NOT NULL,
 		personLimit 			NUMBER(10) NOT NULL,
 		groupID 				NUMBER(10),
 		PRIMARY KEY(groupID)
