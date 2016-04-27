@@ -23,8 +23,10 @@ public class FaceSpace {
 			
 	}
 	
-	public static ArrayList<String> topMessagers(Connection connection, int users, String udate){
-	try{
+	public static ArrayList<String> topMessagers(Connection connection, int users, String udate) throws SQLException{
+	Statement statement = null;
+        PreparedStatement prepStatement = null;
+            try{
 		
 		//to store userid and number of messages recieved/sent
 		HashMap<Integer, Integer> hm = new HashMap<Integer, Integer>();
@@ -36,10 +38,10 @@ public class FaceSpace {
 //                        java.sql.Date newDate = convertFromJAVADateToSQLDate(fdate);
 		java.sql.Timestamp tsdate = new java.sql.Timestamp(fdate.getTime());
 		
-		Statement statement = connection.createStatement(); //create an instance
+		statement = connection.createStatement(); //create an instance
 		//String selectQuery = "select userid, ttlmsggs from( select userid, (cntsid + cntrid) as ttlmsggs from( select * from (select senderID as userid, count(senderID) as cntsid from Messages where dateSent >= ? group by senderID ) natural join (select recipientID as userid, count(recipientID) as cntrid from Messages where dateSent >= ? group by recipientID ) ) order by ttlmsggs desc ) where rownum <= ?" ;
 		String selectQuery = "select senderID as userid, count(senderID) as cntsid from Messages where dateSent >= ? group by senderID";
-		PreparedStatement prepStatement = connection.prepareStatement(selectQuery);
+		prepStatement = connection.prepareStatement(selectQuery);
 		
 		prepStatement.setTimestamp(1, tsdate);
 		ResultSet resultSet = prepStatement.executeQuery();
@@ -82,7 +84,7 @@ public class FaceSpace {
 		resultSet.close();
 		int count = 0;
 		
-		System.out.println("Top messegers are:");
+//		System.out.println("Top messegers are:");
 
 		ArrayList<String> resultStrings = new ArrayList<String>();
 		
@@ -92,7 +94,7 @@ public class FaceSpace {
 				if (entry.getValue()==maxValueInMap) {
 					count++;
 					resultStrings.add("UserID: " +entry.getKey() + " sent and recieved messages: " + entry.getValue());
-					System.out.println("UserID: " +entry.getKey() + " sent and recieved messages: " + entry.getValue());     // Print the key with max value
+//					System.out.println("UserID: " +entry.getKey() + " sent and recieved messages: " + entry.getValue());     // Print the key with max value
 					if(count == users){
 						break;
 					}
@@ -108,10 +110,14 @@ public class FaceSpace {
 	catch(SQLException Ex) {
 		System.out.println("Error running the sample queries.  Machine Error: " +
 				   Ex.toString());
+                prepStatement.close();
+                statement.close();
 		return null;
 	} catch (ParseException e) {
 		System.out.println("Error parsing the date. Machine Error: " +
 		e.toString());
+                prepStatement.close();
+                statement.close();
 		return null;
 	}
 }
@@ -224,7 +230,7 @@ public class FaceSpace {
 
 		}
 		else{
-			System.out.println("No friends found for initial user.");
+//			System.out.println("No friends found for initial user.");
 			return null;
 		}
 		ArrayList<Integer> userIDs = new ArrayList<Integer>();
@@ -262,7 +268,7 @@ public class FaceSpace {
 		PreparedStatement secondQuery = conn.prepareStatement(query, generatedColumns2);
 
 		String queryToPrint = query;
-		System.out.println(query);
+//		System.out.println(query);
 
 		int i = 1;
 		int z = 0;
@@ -270,25 +276,25 @@ public class FaceSpace {
 
 
 		for(i=1; i <= userIDs.size(); i++){
-			System.out.println("setting ? " + i + " to " + userIDs.get(i-1));
+//			System.out.println("setting ? " + i + " to " + userIDs.get(i-1));
 			secondQuery.setInt(i, userIDs.get(i-1));
 			queryToPrint = queryToPrint.replaceFirst("\\?", userIDs.get(i-1).toString());
 		}
-		System.out.println("setting ? " + i + " to " + userID2);
+//		System.out.println("setting ? " + i + " to " + userID2);
 		secondQuery.setInt(i, userID2);
 		queryToPrint = queryToPrint.replaceFirst("\\?", userID2 +"");
 		i++;
 		for(z=0; z < userIDs.size(); i++, z++){
-			System.out.println("setting ? " + i + " to " + userIDs.get(z));
+//			System.out.println("setting ? " + i + " to " + userIDs.get(z));
 			secondQuery.setInt(i, userIDs.get(z));
 			queryToPrint = queryToPrint.replaceFirst("\\?", userIDs.get(z).toString());
 		}
-		System.out.println("setting ? " + i + " to " + userID2);
+//		System.out.println("setting ? " + i + " to " + userID2);
 		secondQuery.setInt(i, userID2);
 		queryToPrint = queryToPrint.replaceFirst("\\?", userID2 +"");
 
-		System.out.println("running query: " + queryToPrint);
-		System.out.println(queryToPrint);
+//		System.out.println("running query: " + queryToPrint);
+//		System.out.println(queryToPrint);
 
 
 		ResultSet secondResult;
@@ -309,7 +315,7 @@ public class FaceSpace {
 				}
 			}
 		}else{
-			System.out.println("the user was not in the initial user's friends' friends list");
+//			System.out.println("the user was not in the initial user's friends' friends list");
 			return null;
 		}
 
@@ -322,7 +328,7 @@ public class FaceSpace {
 			}
 		}
 
-		System.out.println("The intermediary friends to get from " + userID1 + " to " + userID2 + " are [" + middle_friends_text + "]");
+//		System.out.println("The intermediary friends to get from " + userID1 + " to " + userID2 + " are [" + middle_friends_text + "]");
                 statement.close();
                 friendships.close();
                 secondQuery.close();
@@ -377,12 +383,12 @@ public class FaceSpace {
 				if(parsedDate != null){
 //                    parsed_dates.add(convertFromJAVADateToSQLDate(parsedDate));
 					parsed_dates.add(tsdate);
-					System.out.println("parsed a date with: ");
-					System.out.println(elements[i]);
+//					System.out.println("parsed a date with: ");
+//					System.out.println(elements[i]);
 				}
 			}catch(Exception e){
-				System.out.println("failed to parse a date with: ");
-				System.out.println(elements[i]);
+//				System.out.println("failed to parse a date with: ");
+//				System.out.println(elements[i]);
 			}
 
 
@@ -436,7 +442,7 @@ public class FaceSpace {
 		int z = 0;
 
 
-		System.out.println("length of parsed strings is: " + parsed_strings.size() + ", length of varchar openings is: " + varchar_openings.length());
+//		System.out.println("length of parsed strings is: " + parsed_strings.size() + ", length of varchar openings is: " + varchar_openings.length());
 
 		for(i=1; i <= parsed_strings.size(); i++){
 			statement.setString(i, parsed_strings.get(i-1));
@@ -461,7 +467,7 @@ public class FaceSpace {
 		}
 
 
-		System.out.println(queryToPrint);
+//		System.out.println(queryToPrint);
 
 		ArrayList<User> foundUsers = new ArrayList<User>();
 
@@ -481,18 +487,18 @@ public class FaceSpace {
 
 				foundUsers.add(new User(fname, lname, email, id, dob, lastLogin));
 
-				System.out.println("fname: " + fname
-					+ "\nlname: " + lname
-					+ "\nemail: " + email
-					+ "\ndate of birth: " + dob
-					+ "\nid: " + id
-					+ "\n\n");
+//				System.out.println("fname: " + fname
+//					+ "\nlname: " + lname
+//					+ "\nemail: " + email
+//					+ "\ndate of birth: " + dob
+//					+ "\nid: " + id
+//					+ "\n\n");
 
 			}
 		}
 		else{
 			//no users found
-			System.out.println("no users found!");
+//			System.out.println("no users found!");
 			return new ArrayList<User>();
 		}
                 statement.close();
@@ -521,7 +527,7 @@ public class FaceSpace {
 
                 }
                 else{
-                        System.out.println("Error with query.  Statement execute returned false.");
+//                        System.out.println("Error with query.  Statement execute returned false.");
                         return null;
                 }
                 ArrayList<Friendship> friendships_list = new ArrayList<Friendship>();
@@ -534,12 +540,12 @@ public class FaceSpace {
 
                         friendships_list.add(next_friend);
 
-                        System.out.println("FriendDate: " + friendships.getDate(1)
-                                + "\nFriendStatus: " + friendships.getInt(2)
-                                + "\nuserID1: " + friendships.getInt(3)
-                                + "\nuserID2: " + friendships.getInt(4)
-                                + "\nfriendID: " + friendships.getString(5)
-                                + "\n\n");
+//                        System.out.println("FriendDate: " + friendships.getDate(1)
+//                                + "\nFriendStatus: " + friendships.getInt(2)
+//                                + "\nuserID1: " + friendships.getInt(3)
+//                                + "\nuserID2: " + friendships.getInt(4)
+//                                + "\nfriendID: " + friendships.getString(5)
+//                                + "\n\n");
                 }
                 statement.close();
                 friendships.close();
@@ -547,8 +553,8 @@ public class FaceSpace {
                 return friendships_list;
         }
         catch(Exception Ex)  {
-                System.out.println("Error querying database.  Machine Error: " +
-                        Ex.toString());
+//                System.out.println("Error querying database.  Machine Error: " +
+//                        Ex.toString());
                 return null;
         }
 
@@ -572,7 +578,7 @@ public class FaceSpace {
                         
                 }
                 else{
-                        System.out.println("That group has no members.");
+//                        System.out.println("That group has no members.");
                         return false;
                 }
                 String messageInputString = "(";
@@ -590,8 +596,8 @@ public class FaceSpace {
                 
         }
         catch(Exception Ex)  {
-                System.out.println("Error querying database.  Machine Error: " +
-                        Ex.toString());
+//                System.out.println("Error querying database.  Machine Error: " +
+//                        Ex.toString());
 //                statement.close();
                 return false;
         }
@@ -613,8 +619,8 @@ public class FaceSpace {
                         
                 }
                 catch(Exception Ex)  {
-                        System.out.println("Error submitting to database.  Machine Error: " +
-                                Ex.toString());
+//                        System.out.println("Error submitting to database.  Machine Error: " +
+//                                Ex.toString());
                         return false;
                 }
         }
@@ -631,8 +637,8 @@ public class FaceSpace {
 //                        statement3.close();
                 }
                 catch(Exception Ex)  {
-                        System.out.println("Error submitting to database.  Machine Error: " +
-                                Ex.toString());
+//                        System.out.println("Error submitting to database.  Machine Error: " +
+//                                Ex.toString());
                         return false;
                 }
                 
@@ -678,8 +684,8 @@ public class FaceSpace {
                         connection.commit();
                         return true;
                 }catch(SQLException Ex) {
-                        System.out.println("Error running the sample queries.  Machine Error: " +
-                           Ex.toString());
+//                        System.out.println("Error running the sample queries.  Machine Error: " +
+//                           Ex.toString());
                         return false;
                 }
 
@@ -695,8 +701,8 @@ public class FaceSpace {
                         connection.commit();
                         return true;
                 }catch(SQLException Ex) {
-                        System.out.println("Error running the sample queries.  Machine Error: " +
-                           Ex.toString());
+//                        System.out.println("Error running the sample queries.  Machine Error: " +
+//                           Ex.toString());
                         return false;
                 }
         }
@@ -722,7 +728,7 @@ public class FaceSpace {
                                                         + "\nSubject: " + resultSet.getString(1)
                                                         + "\nMessageText: " + resultSet.getString(2);
                                         newMessages.add(newMessage);
-                                        System.out.println(newMessage);
+//                                        System.out.println(newMessage);
                                 }
                                 resultSet.close();
                                 statement.close();
@@ -730,13 +736,13 @@ public class FaceSpace {
                                 return newMessages;
                         }
                         else{
-                                System.out.println("Sorry, there is no user with that ID.");
+//                                System.out.println("Sorry, there is no user with that ID.");
                                 return new ArrayList<String>();
                         }
 
                 }catch(SQLException Ex) {
-                        System.out.println("Error running the sample queries.  Machine Error: blerg" +
-                           Ex.toString());
+//                        System.out.println("Error running the sample queries.  Machine Error: blerg" +
+//                           Ex.toString());
                         return null;
                 }
         }
@@ -768,13 +774,13 @@ public class FaceSpace {
                                 return messages;
                         }
                         else{
-                                System.out.println("Sorry, there is no user with that ID.");
+//                                System.out.println("Sorry, there is no user with that ID.");
                                 return new ArrayList<String>();
                         }
 
                 }catch(SQLException Ex) {
-                        System.out.println("Error running the sample queries.  Machine Error: blerg" +
-                           Ex.toString());
+//                        System.out.println("Error running the sample queries.  Machine Error: blerg" +
+//                           Ex.toString());
                         return null;
                 }
         }
@@ -831,12 +837,12 @@ public class FaceSpace {
 			return true;
 		}
 		catch(SQLException Ex) {
-			System.out.println("Error running the sample queries.  Machine Error: " +
-				Ex.toString());
+//			System.out.println("Error running the sample queries.  Machine Error: " +
+//				Ex.toString());
 			return false;
 		} catch (ParseException e) {
-			System.out.println("Error parsing the date. Machine Error: " +
-				e.toString());
+//			System.out.println("Error parsing the date. Machine Error: " +
+//				e.toString());
 			return false;
 		}
 	}

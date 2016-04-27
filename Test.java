@@ -2,6 +2,7 @@
 //import static FaceSpace;
 import java.sql.*;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -76,6 +77,22 @@ public class Test {
                 if(testSendMessageToGroup(connection)){
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Messages"));
                 }
+                
+                System.out.println("Testing searchForUser: \t");
+                FaceSpace.User user = testSearchForUser(connection);
+                if(user != null){
+                    System.out.println("\tFinal user info: " + "\n\tName: " 
+                            + user.getFname() + " " + user.getLname() 
+                            + "\n\tUser ID: " + user.getUserID());
+                }
+                
+                System.out.println("Testing topMessagers:");
+                String top = testTopMessagers(connection);
+                if(!top.equals("")){
+                    String[] topArr = top.split(" ");
+                        System.out.println("\tFinal top message: \n\t" + topArr[0] + topArr[1] + "\n\tMessages: " + topArr[6]);
+                }
+                
                 
                 System.out.println("Testing dropUser: \n\tNumber of rows before stress test: " + printNumRows(connection, "Users"));
                 if(testDropUser(connection)){
@@ -208,4 +225,47 @@ public class Test {
         }
         return true;
     }
+
+    public static FaceSpace.User testSearchForUser(Connection connection) throws SQLException, IllegalAccessException, ParseException{
+        ArrayList<FaceSpace.User> results = null;
+        for(int i = 0; i < 100; i++){
+                //System.out.println("createGroup");
+            results = FaceSpace.searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
+
+            //print on the last iteration
+            if (i == 3000-1){
+
+//                System.out.println("The users found with the search string 'jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994' were:");
+                if (results.size() == 0){
+//                    System.out.println("none");
+                }
+                for(int z = 0; z < results.size(); z++){
+//                    System.out.println(results.get(z).getFname() + " " + results.get(z).getLname() + " " + results.get(z).getUserID());
+                }
+            }
+        }
+        return results.get(results.size()-1);
+    }
+    
+    public static String testTopMessagers(Connection connection) throws SQLException{
+        ArrayList<String> list = null;
+        for(int i = 0; i <= 100; i++){
+                //System.out.println("createUser");
+            list = FaceSpace.topMessagers(connection, 10, "2015/01/01" );
+
+            if(i == 500){
+                for(int j = 0; j < list.size(); j++){
+                        System.out.println(list.get(j));
+                }
+        }
+          /*  if(FaceSpace.TopMessagers(connection, i%100, "2015/01/01" )){
+            }
+            else{
+                return false;
+            }
+		*/
+        }
+        return list.get(list.size()-1);
+    }
+
 }
