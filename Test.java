@@ -39,6 +39,7 @@ public class Test {
                 System.out.println("Connect to DB..");
                 //create a connection to DB on class3.cs.pitt.edu
                 Connection connection = DriverManager.getConnection(url, username, password);
+                connection.setAutoCommit(true);
                 
                 System.out.println("Testing createUser: \n\tNumber of rows before stress test: " + printNumRows(connection, "Users"));
                 if(testCreateUser(connection)){
@@ -86,7 +87,7 @@ public class Test {
     }
     
     public static boolean testDropUser(Connection connection){
-        for(int i = 0; i < 3000; i++){
+        for(int i = 1; i <= 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.dropUser(connection, i)){
             }
@@ -98,7 +99,7 @@ public class Test {
     }
     
     public static boolean testSendMessageToGroup(Connection connection) throws SQLException{
-        for(int i = 0; i < 3000; i++){
+        for(int i = 1; i <= 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.sendMessageToGroup(connection, i, i, "blerg", "blahblah")){
             }
@@ -110,7 +111,7 @@ public class Test {
     }
     
     public static boolean testAddToGroup(Connection connection){
-        for(int i = 0; i < 3000; i++){
+        for(int i = 1; i <= 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.addToGroup(connection, i, i)){
             }
@@ -122,7 +123,7 @@ public class Test {
     }
     
     public static boolean testSendMessageToUser(Connection connection){
-        for(int i = 0; i < 3000; i++){
+        for(int i = 1; i <= 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.sendMessageToUser(connection, "blahblah", "blerg", 9, 8)){
             }
@@ -134,7 +135,7 @@ public class Test {
     }
     
     public static boolean testEstablishFriendship(Connection connection) throws SQLException{
-        for(int i = 0; i < 3000; i++){
+        for(int i = 1; i <= 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.establishFriendship(connection, 201)){
             }
@@ -146,7 +147,7 @@ public class Test {
     }
     
     public static boolean testInitiateFriendship(Connection connection) throws ParseException{
-        for(int i = 0; i < 3000; i++){
+        for(int i = 1; i <= 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, 8, 9)){
             }

@@ -166,8 +166,9 @@ public class FaceSpace {
 			return true;
 		}
 		catch(SQLException Ex) {
-		System.out.println("Error running the sample queries.  Machine Error: " +
-				   Ex.toString());
+			System.out.println("Error running the sample queries.  Machine Error: " +
+				Ex.toString());
+			System.out.println("This error was found when searching for group " + groupId + " for user " + userId);
 			return false;
 		}
 	}
@@ -553,8 +554,8 @@ public class FaceSpace {
         String generatedColumns[] = {"userID"};
 
         ArrayList<Integer> usersForQuery = new ArrayList<Integer>();
-        PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
         try{
+                PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
                 statement.setInt(1, groupID);
                 ResultSet usersInGroup;
 
@@ -583,7 +584,6 @@ public class FaceSpace {
         catch(Exception Ex)  {
                 System.out.println("Error querying database.  Machine Error: " +
                         Ex.toString());
-                statement.close();
                 return false;
         }
 
