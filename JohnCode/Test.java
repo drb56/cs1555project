@@ -210,4 +210,26 @@ public class Test {
         }
         return true;
     }
+
+    public static boolean testSearchForUser(Connection connection){
+        ArrayList<User> results;
+        for(int i = 0; i < 3000; i++){
+                //System.out.println("createGroup");
+            results = FaceSpace.searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
+
+            //print on the last iteration
+            if (i == 3000-1){
+
+                System.out.println("The users found with the search string 'jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994' were:");
+                if (results.size() == 0){
+                    System.out.println("none");
+                }
+                for(int z = 0; z < results.size(); z++){
+                    System.out.println(results.get(z).getFname() + " " + results.get(z).getLname() + " " + results.get(z).getUserID());
+                }
+            }
+        }
+        return true;
+    }
+
 }
