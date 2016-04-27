@@ -152,7 +152,7 @@ public class Test {
     }
     
     public static boolean testSendMessageToGroup(Connection connection) throws SQLException{
-        for(int i = minID; i <= minID+3000; i++){
+        for(int i = minID; i < minID+500; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.sendMessageToGroup(connection, 30, i, "blerg", "blahblah")){
             }
@@ -166,7 +166,7 @@ public class Test {
     public static boolean testAddToGroup(Connection connection) throws SQLException{
         for(int i = minID; i <= minID+3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.addToGroup(connection, 30, i)){
+            if(FaceSpace.addToGroup(connection, i, i)){
             }
             else{
 //                return false;
