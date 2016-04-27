@@ -3,6 +3,7 @@
 import java.sql.*;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 
@@ -13,7 +14,7 @@ import java.util.Scanner;
  */
 public class Test {
 //    public static String username, password;
-    
+    public static int minID;
     
     public static void main(String args[]){
         String username, password;
@@ -22,6 +23,7 @@ public class Test {
         username = reader.next();
         System.out.println("Enter your Password: ");
         password = reader.next();
+        
         
 //        username = "drb56"; //This is your username in oracle
 //        password = "Robert098$"; //This is your password in oracle
@@ -42,6 +44,8 @@ public class Test {
                 Connection connection = DriverManager.getConnection(url, username, password);
                 connection.setAutoCommit(true);
                 
+                minID = findMinID(connection);
+                System.out.println(minID);
                 System.out.println("Testing createUser: \n\tNumber of rows before stress test: " + printNumRows(connection, "Users"));
                 if(testCreateUser(connection)){
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Users"));
@@ -107,8 +111,6 @@ public class Test {
                     String[] dispArr = displayMessages.split(" ");
                         System.out.println("\tFinal top message: \n" 
                                 + dispArr[0] + dispArr[1] + dispArr[2] + dispArr[3] + dispArr[4]);
-//                                + dispArr[4] + dispArr[5] + dispArr[6] + dispArr[7] 
-//                                + dispArr[8] + dispArr[9] + dispArr[10] + dispArr[11]);
                 }
                 
                 System.out.println("Testing displayNewMessages:");
@@ -116,9 +118,7 @@ public class Test {
                 if(!top.equals("")){
                     String[] dispArr = displayNewMessages.split(" ");
                         System.out.println("\tFinal top message: \n" 
-                                + dispArr[0] + dispArr[1] + dispArr[2] + dispArr[3] + dispArr[4]); 
-//                                + dispArr[4] + dispArr[5] + dispArr[6] + dispArr[7] 
-//                                + dispArr[8] + dispArr[9] + dispArr[10] + dispArr[11]);
+                                + dispArr[0] + dispArr[1] + dispArr[2] + dispArr[3] + dispArr[4]);
                 }
                 
                 System.out.println("Testing threeDegrees:");
@@ -140,7 +140,7 @@ public class Test {
     
     
     public static boolean testDropUser(Connection connection) throws SQLException{
-        for(int i = 1; i <= 3000; i++){
+        for(int i = minID; i <= 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.dropUser(connection, i)){
             }
@@ -152,24 +152,24 @@ public class Test {
     }
     
     public static boolean testSendMessageToGroup(Connection connection) throws SQLException{
-        for(int i = 1; i <= 3000; i++){
+        for(int i = minID; i <= minID+3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.sendMessageToGroup(connection, i, i, "blerg", "blahblah")){
+            if(FaceSpace.sendMessageToGroup(connection, 30, i, "blerg", "blahblah")){
             }
             else{
-                return false;
+//                return false;
             }
         }
         return true;
     }
     
     public static boolean testAddToGroup(Connection connection){
-        for(int i = 1; i <= 3000; i++){
+        for(int i = minID; i <= minID+3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.addToGroup(connection, i, i)){
+            if(FaceSpace.addToGroup(connection, 30, i)){
             }
             else{
-                return false;
+//                return false;
             }
         }
         return true;
@@ -188,7 +188,7 @@ public class Test {
     }
     
     public static boolean testEstablishFriendship(Connection connection) throws SQLException{
-        for(int i = 1; i <= 3000; i++){
+        for(int i = minID; i <= 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.establishFriendship(connection, i)){
             }
@@ -200,9 +200,10 @@ public class Test {
     }
     
     public static boolean testInitiateFriendship(Connection connection) throws ParseException, SQLException{
-        for(int i = 2; i <= 3000; i++){
+        
+        for(int i = minID+1; i <= 3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, i, 1)){
+            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, i, minID)){
             }
 //            else{
 //                return false;
@@ -252,7 +253,7 @@ public class Test {
     public static boolean testCreateGroup(Connection connection){
         for(int i = 0; i < 3000; i++){
                 //System.out.println("createGroup");
-            if(FaceSpace.createGroup(connection, "blah", "test", 30)){
+            if(FaceSpace.createGroup(connection, "blah", "test", i+11)){
             }
             else{
                 return false;
@@ -263,21 +264,21 @@ public class Test {
 
     public static FaceSpace.User testSearchForUser(Connection connection) throws SQLException, IllegalAccessException, ParseException{
         ArrayList<FaceSpace.User> results = null;
-        for(int i = 0; i < 100; i++){
+        for(int i = 0; i < 50; i++){
                 //System.out.println("createGroup");
             results = FaceSpace.searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
 
             //print on the last iteration
-            if (i == 3000-1){
-
-//                System.out.println("The users found with the search string 'jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994' were:");
-                if (results.size() == 0){
-//                    System.out.println("none");
-                }
-                for(int z = 0; z < results.size(); z++){
-//                    System.out.println(results.get(z).getFname() + " " + results.get(z).getLname() + " " + results.get(z).getUserID());
-                }
-            }
+//            if (i == 3000-1){
+//
+////                System.out.println("The users found with the search string 'jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994' were:");
+//                if (results.size() == 0){
+////                    System.out.println("none");
+//                }
+//                for(int z = 0; z < results.size(); z++){
+////                    System.out.println(results.get(z).getFname() + " " + results.get(z).getLname() + " " + results.get(z).getUserID());
+//                }
+//            }
         }
         return results.get(results.size()-1);
     }
@@ -295,7 +296,7 @@ public class Test {
     public static FaceSpace.Friendship testDisplayFriends(Connection connection) throws SQLException{
         ArrayList<FaceSpace.Friendship> friends = null;
         
-        for(int i=500; i<=600; i++){
+        for(int i=minID; i<=600; i++){
             friends = FaceSpace.displayFriends(connection, i);
         }
         return friends.get(friends.size()-1);
@@ -305,7 +306,7 @@ public class Test {
         ArrayList<String> list = null;
         for(int i = 0; i <= 100; i++){
                 //System.out.println("createUser");
-            list = FaceSpace.displayMessages(connection, 64);
+            list = FaceSpace.displayMessages(connection, minID);
 
         }
         return list.get(list.size()-1);
@@ -315,7 +316,7 @@ public class Test {
         ArrayList<String> list = null;
         for(int i = 0; i <= 100; i++){
                 //System.out.println("createUser");
-            list = FaceSpace.displayNewMessages(connection, 34);
+            list = FaceSpace.displayNewMessages(connection, minID);
 
         }
         return list.get(list.size()-1);
@@ -325,7 +326,7 @@ public class Test {
         ArrayList<Integer> list = null;
         for(int i = 0; i <= 100; i++){
                 //System.out.println("createUser");
-            list = FaceSpace.threeDegrees(connection, 3, 12 );
+            list = FaceSpace.threeDegrees(connection, minID, minID+1 );
 
         }
         System.out.println("The middle ids between 3 and 12 are: ");
@@ -334,5 +335,45 @@ public class Test {
         }
         return list.size() != 0;
     }
+    
+    private static int findMinID(Connection connection) throws SQLException{
+        Statement statement = null;
+            ResultSet resultSet = null;
+            ArrayList<Integer> id = new ArrayList<Integer>();
+//            int id = 0;
+            try{
+                        String query = "SELECT * FROM Users";
+
+                        statement = connection.createStatement();
+                        resultSet = statement.executeQuery(query);
+                        
+
+                        if(resultSet != null){
+                                while (resultSet.next()){
+                                        int message = resultSet.getInt(6);
+                                        id.add(message);
+                                }
+                                resultSet.close();
+                                statement.close();
+                                
+                        }
+                        else{
+                            
+                        }
+
+                }catch(SQLException Ex) {
+//                        System.out.println("Error running the sample queries.  Machine Error: blerg" +
+//                           Ex.toString());
+                        resultSet.close();
+                        statement.close();
+                }
+            int[] blah = new int[id.size()];
+            for(int i=0; i<id.size(); i++){
+                blah[i] = id.get(i);
+            }
+            Arrays.sort(blah);
+            return blah[0];
+        }
+    
 
 }

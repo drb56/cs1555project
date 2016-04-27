@@ -108,14 +108,14 @@ public class FaceSpace {
 		return resultStrings;
 	}
 	catch(SQLException Ex) {
-		System.out.println("Error running the sample queries.  Machine Error: " +
-				   Ex.toString());
+//		System.out.println("Error running the sample queries.  Machine Error: " +
+//				   Ex.toString());
                 prepStatement.close();
                 statement.close();
 		return null;
 	} catch (ParseException e) {
-		System.out.println("Error parsing the date. Machine Error: " +
-		e.toString());
+//		System.out.println("Error parsing the date. Machine Error: " +
+//		e.toString());
                 prepStatement.close();
                 statement.close();
 		return null;
@@ -203,8 +203,8 @@ public class FaceSpace {
                         return true;
 		}
 		catch(SQLException Ex) {
-					System.out.println("Error running the sample queries.  Machine Error: " +
-				   Ex.toString());
+//					System.out.println("Error running the sample queries.  Machine Error: " +
+//				   Ex.toString());
 					return false;
 		}
 	}
@@ -605,6 +605,9 @@ public class FaceSpace {
 //                System.out.println("Error querying database.  Machine Error: " +
 //                        Ex.toString());
 //                statement.close();
+            statement1.close();
+            statement2.close();
+            statement3.close();
                 return false;
         }
         statement1.close();
@@ -627,6 +630,8 @@ public class FaceSpace {
                 catch(Exception Ex)  {
 //                        System.out.println("Error submitting to database.  Machine Error: " +
 //                                Ex.toString());
+                    statement2.close();
+                    statement1.close();
                         return false;
                 }
         }
@@ -645,6 +650,9 @@ public class FaceSpace {
                 catch(Exception Ex)  {
 //                        System.out.println("Error submitting to database.  Machine Error: " +
 //                                Ex.toString());
+                        statement1.close();
+                        statement2.close();
+                        statement3.close();
                         return false;
                 }
                 
