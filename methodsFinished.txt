@@ -2,7 +2,7 @@
 createUser:		Eli			done
 initiateFriendship:	Dave			done
 establishFriendship:	Dave			done
-displayFriends:		John			
+displayFriends:		John			done
 createGroup:		Eli			done
 addToGroup:		Eli			done
 sendMessageToUser:	Eli			done
