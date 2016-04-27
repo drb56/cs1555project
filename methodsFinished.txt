@@ -10,6 +10,6 @@ sendMessageToGroup:	John			done
 displayMessages:	Dave			
 displayNewMessages:	Dave			
 searchForUser:		John			done
-threeDegrees:		John			
+threeDegrees:		John			done
 topMessages:		Eli			done
 dropUser:		Dave			done
