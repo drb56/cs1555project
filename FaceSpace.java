@@ -102,6 +102,7 @@ public class FaceSpace {
 		}
                 prepStatement.close();
                 statement.close();
+                connection.commit();
 		return resultStrings;
 	}
 	catch(SQLException Ex) {
@@ -137,6 +138,7 @@ public class FaceSpace {
 			// selections.
 			prepStatement.executeUpdate();
 			prepStatement.close();
+                        connection.commit();
 			return true;
 		}
 		catch(SQLException Ex) {
@@ -163,6 +165,7 @@ public class FaceSpace {
 			// selections.
 			prepStatement.executeUpdate();
 			prepStatement.close();
+                        connection.commit();
 			return true;
 		}
 		catch(SQLException Ex) {
@@ -190,6 +193,7 @@ public class FaceSpace {
 			// selections.
 			prepStatement.executeUpdate();
                         prepStatement.close();
+                        connection.commit();
                         return true;
 		}
 		catch(SQLException Ex) {
@@ -323,6 +327,7 @@ public class FaceSpace {
                 friendships.close();
                 secondQuery.close();
                 secondResult.close();
+                conn.commit();
 		return middle_friends;
 
 
@@ -492,6 +497,7 @@ public class FaceSpace {
 		}
                 statement.close();
                 users.close();
+                conn.commit();
 		return foundUsers;
 
 	}
@@ -537,6 +543,7 @@ public class FaceSpace {
                 }
                 statement.close();
                 friendships.close();
+                conn.commit();
                 return friendships_list;
         }
         catch(Exception Ex)  {
@@ -577,13 +584,12 @@ public class FaceSpace {
                 }
                 messageInputString += ")";
 //                System.out.println("user ids to send to: " + messageInputString);
-                statement.close();
-
+                
         }
         catch(Exception Ex)  {
                 System.out.println("Error querying database.  Machine Error: " +
                         Ex.toString());
-                statement.close();
+//                statement.close();
                 return false;
         }
 
@@ -594,14 +600,14 @@ public class FaceSpace {
         for(int i = 0; i < usersForQuery.size(); i++){
                 query = "INSERT INTO Messages(subject, msgText, dateSent, senderID, recipientID) VALUES(?, ?, ?, ?, ?)";
                 try{
-                        PreparedStatement statement = conn.prepareStatement(query);
+//                        PreparedStatement statement = conn.prepareStatement(query);
                         statement.setString(1, subject);
                         statement.setString(2, message);
                         statement.setTimestamp(3, dateSent);
                         statement.setInt(4, senderID);
                         statement.setInt(5, usersForQuery.get(i));
                         inserts.add(statement);
-                        statement.close();
+//                        statement.close();
                 }
                 catch(Exception Ex)  {
                         System.out.println("Error submitting to database.  Machine Error: " +
@@ -615,7 +621,7 @@ public class FaceSpace {
 
         for(int i = 0; i < inserts.size(); i++){
 
-                PreparedStatement statement = inserts.get(i);
+//                PreparedStatement statement = inserts.get(i);
                 try{
                         int result = statement.executeUpdate();
                         System.out.println("the insert returned a result of:");
@@ -626,9 +632,10 @@ public class FaceSpace {
                                 Ex.toString());
                         return false;
                 }
-                statement.close();
+                
         }
-
+        statement.close();
+        conn.commit();
         return succeeded;
 }
 
@@ -663,6 +670,7 @@ public class FaceSpace {
                         Statement prepStatement = connection.prepareStatement(query);
                         prepStatement.executeUpdate(query);
                         prepStatement.close();
+                        connection.commit();
                         return true;
                 }catch(SQLException Ex) {
                         System.out.println("Error running the sample queries.  Machine Error: " +
@@ -679,6 +687,7 @@ public class FaceSpace {
                         Statement prepStatement = connection.prepareStatement(query);
                         prepStatement.executeUpdate(query);
                         prepStatement.close();
+                        connection.commit();
                         return true;
                 }catch(SQLException Ex) {
                         System.out.println("Error running the sample queries.  Machine Error: " +
@@ -712,6 +721,7 @@ public class FaceSpace {
                                 }
                                 resultSet.close();
                                 statement.close();
+                                connection.commit();
                                 return newMessages;
                         }
                         else{
@@ -749,6 +759,7 @@ public class FaceSpace {
                                 }
                                 resultSet.close();
                                 statement.close();
+                                connection.commit();
                                 return messages;
                         }
                         else{
@@ -781,6 +792,7 @@ public class FaceSpace {
 
 				prepStatement.executeUpdate();
 				prepStatement.close();
+                                connection.commit();
 				return true;
 			}
 			catch(SQLException Ex) {
@@ -810,6 +822,7 @@ public class FaceSpace {
 			
 			prepStatement.executeUpdate();
 			prepStatement.close();
+                        connection.commit();
 			return true;
 		}
 		catch(SQLException Ex) {
