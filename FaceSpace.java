@@ -560,13 +560,16 @@ public class FaceSpace {
         String generatedColumns[] = {"userID"};
 
         ArrayList<Integer> usersForQuery = new ArrayList<Integer>();
-        PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
+        PreparedStatement statement1 = conn.prepareStatement(query, generatedColumns);
+        PreparedStatement statement2 = null;
+        PreparedStatement statement3 = null;
         try{
-                statement.setInt(1, groupID);
+                statement1.setInt(1, groupID);
                 ResultSet usersInGroup;
 
-                if (statement.execute()){
-                        usersInGroup = statement.getResultSet();
+                if (statement1.execute()){
+                        usersInGroup = statement1.getResultSet();
+                        
                 }
                 else{
                         System.out.println("That group has no members.");
@@ -592,7 +595,7 @@ public class FaceSpace {
 //                statement.close();
                 return false;
         }
-
+        statement1.close();
         ArrayList<PreparedStatement> inserts = new ArrayList<PreparedStatement>();
         java.util.Date utilDate = new java.util.Date();
         java.sql.Timestamp dateSent = new java.sql.Timestamp(utilDate.getTime());
@@ -600,14 +603,14 @@ public class FaceSpace {
         for(int i = 0; i < usersForQuery.size(); i++){
                 query = "INSERT INTO Messages(subject, msgText, dateSent, senderID, recipientID) VALUES(?, ?, ?, ?, ?)";
                 try{
-//                        PreparedStatement statement = conn.prepareStatement(query);
-                        statement.setString(1, subject);
-                        statement.setString(2, message);
-                        statement.setTimestamp(3, dateSent);
-                        statement.setInt(4, senderID);
-                        statement.setInt(5, usersForQuery.get(i));
-                        inserts.add(statement);
-//                        statement.close();
+                        statement2 = conn.prepareStatement(query);
+                        statement2.setString(1, subject);
+                        statement2.setString(2, message);
+                        statement2.setTimestamp(3, dateSent);
+                        statement2.setInt(4, senderID);
+                        statement2.setInt(5, usersForQuery.get(i));
+                        inserts.add(statement2);
+                        
                 }
                 catch(Exception Ex)  {
                         System.out.println("Error submitting to database.  Machine Error: " +
@@ -615,17 +618,17 @@ public class FaceSpace {
                         return false;
                 }
         }
-
         boolean succeeded = true;
 
 
         for(int i = 0; i < inserts.size(); i++){
 
-//                PreparedStatement statement = inserts.get(i);
+                statement3 = inserts.get(i);
                 try{
-                        int result = statement.executeUpdate();
-                        System.out.println("the insert returned a result of:");
-                        System.out.println(result);
+                        int result = statement3.executeUpdate();
+//                        System.out.println("the insert returned a result of:");
+//                        System.out.println(result);
+//                        statement3.close();
                 }
                 catch(Exception Ex)  {
                         System.out.println("Error submitting to database.  Machine Error: " +
@@ -634,7 +637,9 @@ public class FaceSpace {
                 }
                 
         }
-        statement.close();
+        statement1.close();
+        statement2.close();
+        statement3.close();
         conn.commit();
         return succeeded;
 }

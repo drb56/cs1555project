@@ -55,6 +55,7 @@ public class Test {
                 if(testInitiateFriendship(connection)){
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
                 }
+                System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
                 
                 System.out.println("Stress testing establishFriendship: ");
                 if(testEstablishFriendship(connection)){
@@ -149,11 +150,11 @@ public class Test {
     public static boolean testInitiateFriendship(Connection connection) throws ParseException{
         for(int i = 1; i <= 3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, 8, 9)){
+            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, i, i+1)){
             }
-            else{
-                return false;
-            }
+//            else{
+//                return false;
+//            }
         }
         return true;
     }
