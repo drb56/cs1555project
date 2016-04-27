@@ -56,7 +56,7 @@ public class Test {
                 if(testInitiateFriendship(connection)){
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
                 }
-                System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
+//                System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
                 
                 System.out.println("Stress testing establishFriendship: ");
                 if(testEstablishFriendship(connection)){
@@ -86,11 +86,44 @@ public class Test {
                             + "\n\tUser ID: " + user.getUserID());
                 }
                 
+                System.out.println("Testing displayFriends: \t");
+                FaceSpace.Friendship friends = testDisplayFriends(connection);
+                if(friends != null){
+                    System.out.println("\tFinal friendship info: " + "\n\tFriendDate: " 
+                            + friends.getFriendDate() + "\n\tFriendOne: " 
+                            + friends.getFriendOne() + "\n\tFriendTwo: " + friends.getFriendTwo());
+                }
+                
                 System.out.println("Testing topMessagers:");
                 String top = testTopMessagers(connection);
                 if(!top.equals("")){
                     String[] topArr = top.split(" ");
                         System.out.println("\tFinal top message: \n\t" + topArr[0] + topArr[1] + "\n\tMessages: " + topArr[6]);
+                }
+                
+                System.out.println("Testing displayMessages:");
+                String displayMessages = testDisplayMessages(connection);
+                if(!top.equals("")){
+                    String[] dispArr = displayMessages.split(" ");
+                        System.out.println("\tFinal top message: \n" 
+                                + dispArr[0] + dispArr[1] + dispArr[2] + dispArr[3] + dispArr[4]);
+//                                + dispArr[4] + dispArr[5] + dispArr[6] + dispArr[7] 
+//                                + dispArr[8] + dispArr[9] + dispArr[10] + dispArr[11]);
+                }
+                
+                System.out.println("Testing displayNewMessages:");
+                String displayNewMessages = testDisplayNewMessages(connection);
+                if(!top.equals("")){
+                    String[] dispArr = displayNewMessages.split(" ");
+                        System.out.println("\tFinal top message: \n" 
+                                + dispArr[0] + dispArr[1] + dispArr[2] + dispArr[3] + dispArr[4]); 
+//                                + dispArr[4] + dispArr[5] + dispArr[6] + dispArr[7] 
+//                                + dispArr[8] + dispArr[9] + dispArr[10] + dispArr[11]);
+                }
+                
+                System.out.println("Testing threeDegrees:");
+                if(testThreeDegrees(connection)){
+                    System.out.println("\tStress test succeeded!");
                 }
                 
                 
@@ -104,7 +137,9 @@ public class Test {
         }
     }
     
-    public static boolean testDropUser(Connection connection){
+    
+    
+    public static boolean testDropUser(Connection connection) throws SQLException{
         for(int i = 1; i <= 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.dropUser(connection, i)){
@@ -155,7 +190,7 @@ public class Test {
     public static boolean testEstablishFriendship(Connection connection) throws SQLException{
         for(int i = 1; i <= 3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.establishFriendship(connection, 201)){
+            if(FaceSpace.establishFriendship(connection, i)){
             }
             else{
                 return false;
@@ -164,10 +199,10 @@ public class Test {
         return true;
     }
     
-    public static boolean testInitiateFriendship(Connection connection) throws ParseException{
-        for(int i = 1; i <= 3000; i++){
+    public static boolean testInitiateFriendship(Connection connection) throws ParseException, SQLException{
+        for(int i = 2; i <= 3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, i, i+1)){
+            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, i, 1)){
             }
 //            else{
 //                return false;
@@ -202,7 +237,7 @@ public class Test {
         return numRows;
     }
     
-    public static boolean testCreateUser(Connection connection){
+    public static boolean testCreateUser(Connection connection) throws SQLException{
         for(int i = 0; i < 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.createUser(connection, "abcde", "abcde", "elkjlkj", "2012-02-24")){
@@ -253,19 +288,51 @@ public class Test {
                 //System.out.println("createUser");
             list = FaceSpace.topMessagers(connection, 10, "2015/01/01" );
 
-            if(i == 500){
-                for(int j = 0; j < list.size(); j++){
-                        System.out.println(list.get(j));
-                }
-        }
-          /*  if(FaceSpace.TopMessagers(connection, i%100, "2015/01/01" )){
-            }
-            else{
-                return false;
-            }
-		*/
         }
         return list.get(list.size()-1);
+    }
+    
+    public static FaceSpace.Friendship testDisplayFriends(Connection connection) throws SQLException{
+        ArrayList<FaceSpace.Friendship> friends = null;
+        
+        for(int i=500; i<=600; i++){
+            friends = FaceSpace.displayFriends(connection, i);
+        }
+        return friends.get(friends.size()-1);
+    }
+    
+    public static String testDisplayMessages(Connection connection) throws SQLException{
+        ArrayList<String> list = null;
+        for(int i = 0; i <= 100; i++){
+                //System.out.println("createUser");
+            list = FaceSpace.displayMessages(connection, 64);
+
+        }
+        return list.get(list.size()-1);
+    }
+    
+    public static String testDisplayNewMessages(Connection connection) throws SQLException{
+        ArrayList<String> list = null;
+        for(int i = 0; i <= 100; i++){
+                //System.out.println("createUser");
+            list = FaceSpace.displayNewMessages(connection, 34);
+
+        }
+        return list.get(list.size()-1);
+    }
+    
+    public static boolean testThreeDegrees(Connection connection) throws SQLException{
+        ArrayList<Integer> list = null;
+        for(int i = 0; i <= 100; i++){
+                //System.out.println("createUser");
+            list = FaceSpace.threeDegrees(connection, 3, 12 );
+
+        }
+        System.out.println("The middle ids between 3 and 12 are: ");
+        for(int j = 0; j < list.size(); j++){
+                System.out.println("\tID: " +list.get(j));
+        }
+        return list.size() != 0;
     }
 
 }

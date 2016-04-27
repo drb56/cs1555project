@@ -148,8 +148,8 @@ public class FaceSpace {
 			return true;
 		}
 		catch(SQLException Ex) {
-			System.out.println("Error running the sample queries.  Machine Error: " +
-				   Ex.toString());
+//			System.out.println("Error running the sample queries.  Machine Error: " +
+//				   Ex.toString());
 			return false;
 		}
 	}
@@ -175,8 +175,8 @@ public class FaceSpace {
 			return true;
 		}
 		catch(SQLException Ex) {
-		System.out.println("Error running the sample queries.  Machine Error: " +
-				   Ex.toString());
+//		System.out.println("Error running the sample queries.  Machine Error: " +
+//				   Ex.toString());
 			return false;
 		}
 	}
@@ -231,6 +231,7 @@ public class FaceSpace {
 		}
 		else{
 //			System.out.println("No friends found for initial user.");
+                        statement.close();
 			return null;
 		}
 		ArrayList<Integer> userIDs = new ArrayList<Integer>();
@@ -258,8 +259,8 @@ public class FaceSpace {
 				friends_openings += ", ";
 			}
 		}
-		System.out.println(userIDs);
-		System.out.println(userID2);
+//		System.out.println(userIDs);
+//		System.out.println(userID2);
 
 		query = "SELECT userID1, userID2 FROM Friends WHERE userID1 IN ( " + friends_openings + " ) AND userID2 = ?  OR userID2 IN ( " + friends_openings + " ) AND userID1 = ? ";
 		
@@ -297,7 +298,7 @@ public class FaceSpace {
 //		System.out.println(queryToPrint);
 
 
-		ResultSet secondResult;
+		ResultSet secondResult = null;
 
 		ArrayList<Integer> middle_friends = new ArrayList<Integer>();
 
@@ -316,6 +317,10 @@ public class FaceSpace {
 			}
 		}else{
 //			System.out.println("the user was not in the initial user's friends' friends list");
+                    statement.close();
+                    friendships.close();
+                    secondQuery.close();
+                    secondResult.close();
 			return null;
 		}
 
@@ -508,20 +513,19 @@ public class FaceSpace {
 
 	}
 
-
-
         // returns an arraylist of friendships that include userID as one of the friendIDs
-        public static ArrayList<Friendship> displayFriends(Connection conn, int userID){
+        public static ArrayList<Friendship> displayFriends(Connection conn, int userID) throws SQLException{
         Statement friendsQuery = null;
+        PreparedStatement statement = null;
+        ResultSet friendships = null;
         try{
                 String query = "SELECT * FROM Friends WHERE userID1 = ? OR userID2 = ?";
                 String generatedColumns[] = { "FriendDate",  "FriendStatus", "userID1", "userID2", "friendID"};
-                PreparedStatement statement = conn.prepareStatement(query, generatedColumns);
+                statement = conn.prepareStatement(query, generatedColumns);
 
                 statement.setInt(1, userID);
                 statement.setInt(2, userID);
 
-                ResultSet friendships;
                 if(statement.execute()){
                         friendships = statement.getResultSet();
 
@@ -555,6 +559,8 @@ public class FaceSpace {
         catch(Exception Ex)  {
 //                System.out.println("Error querying database.  Machine Error: " +
 //                        Ex.toString());
+                statement.close();
+                friendships.close();
                 return null;
         }
 
@@ -675,10 +681,11 @@ public class FaceSpace {
                 return date;
         }
 
-        public static boolean dropUser(Connection connection, int userID){
-                try{
+        public static boolean dropUser(Connection connection, int userID) throws SQLException{
+            Statement prepStatement = null;    
+            try{
                         String query = "DELETE FROM users WHERE userID = " + Integer.toString(userID);
-                        Statement prepStatement = connection.prepareStatement(query);
+                        prepStatement = connection.prepareStatement(query);
                         prepStatement.executeUpdate(query);
                         prepStatement.close();
                         connection.commit();
@@ -686,6 +693,7 @@ public class FaceSpace {
                 }catch(SQLException Ex) {
 //                        System.out.println("Error running the sample queries.  Machine Error: " +
 //                           Ex.toString());
+                    prepStatement.close();
                         return false;
                 }
 
@@ -693,9 +701,10 @@ public class FaceSpace {
         }
 
         public static boolean establishFriendship(Connection connection, int userID) throws SQLException{
-                try{
+            Statement prepStatement = null;    
+            try{
                         String query = "UPDATE friends SET friendStatus = 1 WHERE friendID = " + Integer.toString(userID);
-                        Statement prepStatement = connection.prepareStatement(query);
+                        prepStatement = connection.prepareStatement(query);
                         prepStatement.executeUpdate(query);
                         prepStatement.close();
                         connection.commit();
@@ -703,30 +712,32 @@ public class FaceSpace {
                 }catch(SQLException Ex) {
 //                        System.out.println("Error running the sample queries.  Machine Error: " +
 //                           Ex.toString());
+                    prepStatement.close();
                         return false;
                 }
         }
 
-        public static ArrayList<String> displayNewMessages(Connection connection, int userID){
-
+        public static ArrayList<String> displayNewMessages(Connection connection, int userID) throws SQLException{
+                Statement statement = null;
+                ResultSet resultSet = null;
                 try{
                         String ID = Integer.toString(userID);
                         String query = "SELECT M.subject, M.msgText, M.dateSent, M.senderID, M.recipientID, M.msgID\n" +
                                                 "FROM Messages M, Users U\n" +
                                                 "WHERE M.dateSent > U.lastLogin AND M.recipientID = " + ID;
 
-                        Statement statement = connection.createStatement();
-                        ResultSet resultSet = statement.executeQuery(query);
+                        statement = connection.createStatement();
+                        resultSet = statement.executeQuery(query);
                         ArrayList<String> newMessages = new ArrayList<String>();
 
                         if(resultSet != null){
                                 while (resultSet.next()){
-                                        String newMessage = "\n\nmsgID: " + resultSet.getString(6)
-                                                        + "\nSenderID: " + resultSet.getInt(4)
-                                                        + "\nRecipientID: " + resultSet.getInt(5)
-                                                        + "\nDateSent: " + resultSet.getDate(3)
-                                                        + "\nSubject: " + resultSet.getString(1)
-                                                        + "\nMessageText: " + resultSet.getString(2);
+                                        String newMessage = "\tmsgID:" + resultSet.getString(6)
+                                                        + " \n\tSenderID: " + resultSet.getInt(4)
+                                                        + " \n\tRecipientID:" + resultSet.getInt(5)
+                                                        + " \n\tDateSent:" + resultSet.getDate(3)
+                                                        + " \n\tSubject:" + resultSet.getString(1)
+                                                        + " \n\tMessageText:" + resultSet.getString(2);
                                         newMessages.add(newMessage);
 //                                        System.out.println(newMessage);
                                 }
@@ -743,28 +754,32 @@ public class FaceSpace {
                 }catch(SQLException Ex) {
 //                        System.out.println("Error running the sample queries.  Machine Error: blerg" +
 //                           Ex.toString());
+                    resultSet.close();
+                                statement.close();
                         return null;
                 }
         }
 
-        public static ArrayList<String> displayMessages(Connection connection, int userID){
-                try{
+        public static ArrayList<String> displayMessages(Connection connection, int userID) throws SQLException{
+            Statement statement = null;
+            ResultSet resultSet = null;
+            try{
                         String query = "SELECT * FROM messages WHERE recipientID = " + Integer.toString(userID);
 
-                        Statement statement = connection.createStatement();
-                        ResultSet resultSet = statement.executeQuery(query);
+                        statement = connection.createStatement();
+                        resultSet = statement.executeQuery(query);
 
 
                         ArrayList<String> messages = new ArrayList<String>();
 
                         if(resultSet != null){
                                 while (resultSet.next()){
-                                        String message = "\n\nmsgID: " + resultSet.getString(6)
-                                                        + "\nSenderID: " + resultSet.getInt(4)
-                                                        + "\nRecipientID: " + resultSet.getInt(5)
-                                                        + "\nDateSent: " + resultSet.getDate(3)
-                                                        + "\nSubject: " + resultSet.getString(1)
-                                                        + "\nMessageText: " + resultSet.getString(2);
+                                        String message = "\tmsgID:" + resultSet.getString(6)
+                                                        + " \n\tSenderID: " + resultSet.getInt(4)
+                                                        + " \n\tRecipientID:" + resultSet.getInt(5)
+                                                        + " \n\tDateSent:" + resultSet.getDate(3)
+                                                        + " \n\tSubject:" + resultSet.getString(1)
+                                                        + " \n\tMessageText:" + resultSet.getString(2);
                                         messages.add(message);
 
                                 }
@@ -781,20 +796,23 @@ public class FaceSpace {
                 }catch(SQLException Ex) {
 //                        System.out.println("Error running the sample queries.  Machine Error: blerg" +
 //                           Ex.toString());
+                        resultSet.close();
+                        statement.close();
                         return null;
                 }
         }
 
 
-        public static boolean initiateFriendship(Connection connection, String friendDate, int friendStatus, int userID1, int userID2) throws ParseException{
-			try{
+        public static boolean initiateFriendship(Connection connection, String friendDate, int friendStatus, int userID1, int userID2) throws ParseException, SQLException{
+            PreparedStatement prepStatement = null;
+            try{
 				String query = "insert into Friends(friendDate, friendStatus, userID1, userID2) values (?,?,?,?)";
 				
 
 				//formatting date for birthday
 				java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd");
 				java.sql.Date date = new java.sql.Date (df.parse(friendDate).getTime());
-				PreparedStatement prepStatement = connection.prepareStatement(query);
+				prepStatement = connection.prepareStatement(query);
 				prepStatement.setDate(1, date);
 				prepStatement.setInt(2, friendStatus); 
 				prepStatement.setInt(3, userID1);
@@ -807,13 +825,15 @@ public class FaceSpace {
 				return true;
 			}
 			catch(SQLException Ex) {
+                            prepStatement.close();
 				return false;
 			}
 		}
 	
 	//function to create user. sets last login to current time
-	public static boolean createUser(Connection connection, String fname, String lname, String email, String dob){
-		try{
+	public static boolean createUser(Connection connection, String fname, String lname, String email, String dob) throws SQLException{
+	PreparedStatement prepStatement = null;	
+            try{
 			String query = "insert into Users(fname, lname, email, dateOfBirth, lastLogin) values (?,?,?,?,?)";
 						
 			//formatting time for last login
@@ -822,7 +842,7 @@ public class FaceSpace {
 			//formatting date for birthday
 			java.text.SimpleDateFormat df = new java.text.SimpleDateFormat("yyyy-MM-dd");
 			java.sql.Date dateOfBirth = new java.sql.Date (df.parse(dob).getTime());
-			PreparedStatement prepStatement = connection.prepareStatement(query);
+			prepStatement = connection.prepareStatement(query);
 			
 			
 			prepStatement.setString(1, fname); 
@@ -839,10 +859,12 @@ public class FaceSpace {
 		catch(SQLException Ex) {
 //			System.out.println("Error running the sample queries.  Machine Error: " +
 //				Ex.toString());
+                    prepStatement.close();
 			return false;
 		} catch (ParseException e) {
 //			System.out.println("Error parsing the date. Machine Error: " +
 //				e.toString());
+                    prepStatement.close();
 			return false;
 		}
 	}
