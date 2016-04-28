@@ -159,7 +159,7 @@ public class Test {
     public static boolean testSendMessageToGroup(Connection connection) throws SQLException{
         for(int i = minID; i < minID+500; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.sendMessageToGroup(connection, 30, i+1, "blerg", "blahblah")){
+            if(FaceSpace.sendMessageToGroup(connection, minID+1, i+1, "blerg", "blahblah")){
             }
             else{
 //                return false;
@@ -193,9 +193,9 @@ public class Test {
     }
     
     public static boolean testEstablishFriendship(Connection connection) throws SQLException{
-        for(int i = minID; i <= 3000; i++){
+        for(int i = 0; i < 3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.establishFriendship(connection, i)){
+            if(FaceSpace.establishFriendship(connection, minID+i+1)){
             }
             else{
                 return false;
@@ -206,9 +206,9 @@ public class Test {
     
     public static boolean testInitiateFriendship(Connection connection) throws ParseException, SQLException{
         
-        for(int i = minID+1; i <= 3000; i++){
+        for(int i = 0; i < 3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, i, minID)){
+            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, minID, minID+i+1)){
             }
 //            else{
 //                return false;
@@ -301,8 +301,8 @@ public class Test {
     public static void testDisplayFriends(Connection connection) throws SQLException{
         ArrayList<Friendship> friends = null;
         
-        for(int i=minID; i<=600; i++){
-            friends = FaceSpace.displayFriends(connection, 2);
+        for(int i=0; i<=600; i++){
+            friends = FaceSpace.displayFriends(connection, minID+1);
         }
         for(Friendship friend : friends){
             System.out.println("\tthe friendship between " 

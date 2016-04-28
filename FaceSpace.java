@@ -252,7 +252,7 @@ public class FaceSpace {
 		}
 
 		//create query to see if the target friend is a friend of any of these users
-
+//System.out.println("got to end of first query");
 
 		String friends_openings = "";
 		for(int i = 0; i < userIDs.size(); i++){
@@ -299,6 +299,7 @@ public class FaceSpace {
 //		System.out.println("running query: " + queryToPrint);
 //		System.out.println(queryToPrint);
 
+//System.out.println("got to end of second query");
 
 		ResultSet secondResult = null;
 
@@ -325,7 +326,7 @@ public class FaceSpace {
                     secondResult.close();
 			return null;
 		}
-
+//System.out.println("got to end of second query 2");
 
 		String middle_friends_text = "";
 		for(int v = 0; v < middle_friends.size(); v++){
@@ -341,6 +342,7 @@ public class FaceSpace {
                 secondQuery.close();
                 secondResult.close();
                 conn.commit();
+//System.out.println("got to end");
 		return middle_friends;
 
 
@@ -735,9 +737,9 @@ public class FaceSpace {
                         statement = connection.createStatement();
                         resultSet = statement.executeQuery(query);
                         ArrayList<String> newMessages = new ArrayList<String>();
-
+                        int i=0;
                         if(resultSet != null){
-                                while (resultSet.next()){
+                                while (resultSet.next() && i<=1000){
                                         String newMessage = "\tmsgID:" + resultSet.getString(6)
                                                         + " \n\tSenderID: " + resultSet.getInt(4)
                                                         + " \n\tRecipientID:" + resultSet.getInt(5)
@@ -745,6 +747,7 @@ public class FaceSpace {
                                                         + " \n\tSubject:" + resultSet.getString(1)
                                                         + " \n\tMessageText:" + resultSet.getString(2);
                                         newMessages.add(newMessage);
+                                        i++;
 //                                        System.out.println(newMessage);
                                 }
                                 resultSet.close();
@@ -795,7 +798,10 @@ public class FaceSpace {
                                 return messages;
                         }
                         else{
-//                                System.out.println("Sorry, there is no user with that ID.");
+                                System.out.println("Sorry, there is no user with that ID.");
+								resultSet.close();
+                                statement.close();
+                                connection.commit();
                                 return new ArrayList<String>();
                         }
 
