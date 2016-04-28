@@ -252,7 +252,7 @@ public class FaceSpace {
 		}
 
 		//create query to see if the target friend is a friend of any of these users
-
+//System.out.println("got to end of first query");
 
 		String friends_openings = "";
 		for(int i = 0; i < userIDs.size(); i++){
@@ -299,6 +299,7 @@ public class FaceSpace {
 //		System.out.println("running query: " + queryToPrint);
 //		System.out.println(queryToPrint);
 
+//System.out.println("got to end of second query");
 
 		ResultSet secondResult = null;
 
@@ -325,7 +326,7 @@ public class FaceSpace {
                     secondResult.close();
 			return null;
 		}
-
+//System.out.println("got to end of second query 2");
 
 		String middle_friends_text = "";
 		for(int v = 0; v < middle_friends.size(); v++){
@@ -341,6 +342,7 @@ public class FaceSpace {
                 secondQuery.close();
                 secondResult.close();
                 conn.commit();
+//System.out.println("got to end");
 		return middle_friends;
 
 
@@ -449,7 +451,7 @@ public class FaceSpace {
 		int z = 0;
 
 
-//		System.out.println("length of parsed strings is: " + parsed_strings.size() + ", length of varchar openings is: " + varchar_openings.length());
+		// System.out.println("length of parsed strings is: " + parsed_strings.size() + ", length of varchar openings is: " + varchar_openings.length());
 
 		for(i=1; i <= parsed_strings.size(); i++){
 			statement.setString(i, parsed_strings.get(i-1));
@@ -474,7 +476,7 @@ public class FaceSpace {
 		}
 
 
-//		System.out.println(queryToPrint);
+		// System.out.println(queryToPrint);
 
 		ArrayList<User> foundUsers = new ArrayList<User>();
 
@@ -492,28 +494,24 @@ public class FaceSpace {
 				int id = users.getInt(6);
 
 
-				foundUsers.add(new User(fname, lname, email, id, dob, lastLogin));
+				User new_user = new User(fname, lname, email, id, dob, lastLogin);
 
-//				System.out.println("fname: " + fname
-//					+ "\nlname: " + lname
-//					+ "\nemail: " + email
-//					+ "\ndate of birth: " + dob
-//					+ "\nid: " + id
-//					+ "\n\n");
-
+		        foundUsers.add(new_user);
 			}
 		}
 		else{
 			//no users found
-//			System.out.println("no users found!");
+			System.out.println("no users found!");
 			return new ArrayList<User>();
 		}
-                statement.close();
-                users.close();
-                conn.commit();
+        statement.close();
+        users.close();
+        conn.commit();
+
 		return foundUsers;
 
 	}
+
 
         // returns an arraylist of friendships that include userID as one of the friendIDs
         public static ArrayList<Friendship> displayFriends(Connection conn, int userID) throws SQLException{
@@ -566,7 +564,7 @@ public class FaceSpace {
                 return null;
         }
 
-}
+	}
 
         //sends a message to a group
         public static boolean sendMessageToGroup(Connection conn, int groupID, int senderID, String subject, String message) throws SQLException{
@@ -739,9 +737,9 @@ public class FaceSpace {
                         statement = connection.createStatement();
                         resultSet = statement.executeQuery(query);
                         ArrayList<String> newMessages = new ArrayList<String>();
-
+                        int i=0;
                         if(resultSet != null){
-                                while (resultSet.next()){
+                                while (resultSet.next() && i<=1000){
                                         String newMessage = "\tmsgID:" + resultSet.getString(6)
                                                         + " \n\tSenderID: " + resultSet.getInt(4)
                                                         + " \n\tRecipientID:" + resultSet.getInt(5)
@@ -749,6 +747,7 @@ public class FaceSpace {
                                                         + " \n\tSubject:" + resultSet.getString(1)
                                                         + " \n\tMessageText:" + resultSet.getString(2);
                                         newMessages.add(newMessage);
+                                        i++;
 //                                        System.out.println(newMessage);
                                 }
                                 resultSet.close();
@@ -799,7 +798,10 @@ public class FaceSpace {
                                 return messages;
                         }
                         else{
-//                                System.out.println("Sorry, there is no user with that ID.");
+                                System.out.println("Sorry, there is no user with that ID.");
+								resultSet.close();
+                                statement.close();
+                                connection.commit();
                                 return new ArrayList<String>();
                         }
 
@@ -945,72 +947,5 @@ public class FaceSpace {
 		}
 	}
 		
-		
-	
-	public static  class User{
-
-		private String fname;
-		private String lname;
-		private String email;
-		private int userID;
-		private Date dateOfBirth;
-		private Date lastLogin;
-
-		public User(String fname, String lname, String email, int userID, Date dateOfBirth, Date lastLogin){
-				fname = fname;
-				lname = lname;
-				email = email;
-				userID = userID;
-				dateOfBirth = dateOfBirth;
-				lastLogin = lastLogin;
-		}
-		public String getFname(){
-				return fname;
-		}
-		public String getLname(){
-				return lname;
-		}
-		public String getEmail(){
-				return email;
-		}
-		public int getUserID(){
-				return userID;
-		}
-		public Date getDateOfBirth(){
-				return dateOfBirth;
-		}
-		public Date getLastLogin(){
-				return lastLogin;
-		}
-
-	}
-	
-	public static class Friendship{
-
-		private String friendDate;
-		private int friend1;
-		private int friend2;
-		private boolean friendStatus;
-
-		public Friendship(String date, int friend1, int friend2, boolean status){
-				friendDate = date;
-				friend1 = friend1;
-				friend2 = friend2;
-				status = status;
-		}
-		public String getFriendDate(){
-				return friendDate;
-		}
-		public int getFriendOne(){
-				return friend1;
-		}
-		public int getFriendTwo(){
-				return friend2;
-		}
-		public boolean isAccepted(){
-				return friendStatus;
-		}
-
-	}
 
 }
