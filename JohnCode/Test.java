@@ -1,9 +1,14 @@
 
+        //username = "elf62"; //This is your username in oracle
+        //password = "3981019"; //This is your password in oracle
+        //String url = "jdbc:oracle:thin:@DESKTOP-2AN1RIL:1521:XE"; 
+
 //import static FaceSpace;
 import java.sql.*;
 import java.text.ParseException;
-import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 
 
 /**
@@ -13,38 +18,47 @@ import java.util.ArrayList;
  */
 public class Test {
 //    public static String username, password;
+    public static int minID;
     
-    
-    public static void main(String args[]){
+    public static void main(String args[]) throws SQLException{
         String username, password;
         Scanner reader = new Scanner(System.in);
-        //System.out.println("Enter your Username: ");
-        //username = reader.next();
-        //System.out.println("Enter your Password: ");
-        //password = reader.next();
-
         username = "elf62"; //This is your username in oracle
         password = "3981019"; //This is your password in oracle
         
+        
 //        username = "drb56"; //This is your username in oracle
 //        password = "Robert098$"; //This is your password in oracle
+
+
+        System.out.println("Registering DB..");
+        // Register the oracle driver.  
+
+        System.out.println("Set url..");
+        //This is the location of the database.  This is the database in oracle
+        //provided to the class
+        String url = "jdbc:oracle:thin:@DESKTOP-2AN1RIL:1521:XE"; 
+
+        System.out.println("Connect to DB..");
+        //create a connection to DB on class3.cs.pitt.edu
+        Connection connection;
+        try{
+            DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
+
+            connection = DriverManager.getConnection(url, username, password);
+            connection.setAutoCommit(true);
+        }
+        catch(Exception e){
+            System.out.println("failed to establish a connection to the db");
+            return;
+        }
+
         
         try{
-                System.out.println("Registering DB..");
-                // Register the oracle driver.  
-                DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
-
-
-                System.out.println("Set url..");
-                //This is the location of the database.  This is the database in oracle
-                //provided to the class
-                String url = "jdbc:oracle:thin:@DESKTOP-2AN1RIL:1521:XE"; 
-
-                System.out.println("Connect to DB..");
-                //create a connection to DB on class3.cs.pitt.edu
-                Connection connection = DriverManager.getConnection(url, username, password);
-                connection.setAutoCommit(true);
                 
+                minID = 1;//findMinID(connection);
+                ///*
+                System.out.println(minID);
                 System.out.println("Testing createUser: \n\tNumber of rows before stress test: " + printNumRows(connection, "Users"));
                 if(testCreateUser(connection)){
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Users"));
@@ -59,7 +73,7 @@ public class Test {
                 if(testInitiateFriendship(connection)){
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
                 }
-                System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
+//                System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Friends"));
                 
                 System.out.println("Stress testing establishFriendship: ");
                 if(testEstablishFriendship(connection)){
@@ -80,19 +94,12 @@ public class Test {
                 if(testSendMessageToGroup(connection)){
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Messages"));
                 }
-                
+                //*/
                 System.out.println("Testing searchForUser: \t");
-                FaceSpace.User user = testSearchForUser(connection);
-                if(user != null){
-                    System.out.println("\tFinal user info: " + "\n\tName: " 
-                            + user.getFname() + " " + user.getLname() 
-                            + "\n\tUser ID: " + user.getUserID());
-                }
-
-                System.out.println("Testing threeDegrees");
-                if(testThreeDegrees(connection)){
-                    System.out.println("Stress test succeeded!");
-                }
+                testSearchForUser(connection);
+                ///*
+                System.out.println("Testing displayFriends: \t");
+                testDisplayFriends(connection);
                 
                 System.out.println("Testing topMessagers:");
                 String top = testTopMessagers(connection);
@@ -101,19 +108,45 @@ public class Test {
                         System.out.println("\tFinal top message: \n\t" + topArr[0] + topArr[1] + "\n\tMessages: " + topArr[6]);
                 }
                 
+                System.out.println("Testing displayMessages:");
+                String displayMessages = testDisplayMessages(connection);
+                if(!top.equals("")){
+                    String[] dispArr = displayMessages.split(" ");
+                        System.out.println("\tFinal top message: \n" 
+                                + dispArr[0] + dispArr[1] + dispArr[2] + dispArr[3] + dispArr[4]);
+                }
+                
+                System.out.println("Testing displayNewMessages:");
+                String displayNewMessages = testDisplayNewMessages(connection);
+                if(!top.equals("")){
+                    String[] dispArr = displayNewMessages.split(" ");
+                        System.out.println("\tFinal top message: \n" 
+                                + dispArr[0] + dispArr[1] + dispArr[2] + dispArr[3] + dispArr[4]);
+                }
+                
+                System.out.println("Testing threeDegrees:");
+                if(testThreeDegrees(connection)){
+                    System.out.println("\tStress test succeeded!");
+                }
+                
                 
                 System.out.println("Testing dropUser: \n\tNumber of rows before stress test: " + printNumRows(connection, "Users"));
                 if(testDropUser(connection)){
                     System.out.println("\tNumber of rows after stress test: " + printNumRows(connection, "Users"));
                 }
-                
+                //*/
         }catch(Exception e){
             System.out.println("error connecting");
         }
+        finally{
+            connection.close();
+        }
     }
     
-    public static boolean testDropUser(Connection connection){
-        for(int i = 1; i <= 3000; i++){
+    
+    
+    public static boolean testDropUser(Connection connection) throws SQLException{
+        for(int i = minID; i <= 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.dropUser(connection, i)){
             }
@@ -125,24 +158,24 @@ public class Test {
     }
     
     public static boolean testSendMessageToGroup(Connection connection) throws SQLException{
-        for(int i = 1; i <= 3000; i++){
+        for(int i = minID; i < minID+500; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.sendMessageToGroup(connection, i, i, "blerg", "blahblah")){
+            if(FaceSpace.sendMessageToGroup(connection, 30, i, "blerg", "blahblah")){
             }
             else{
-                return false;
+//                return false;
             }
         }
         return true;
     }
     
-    public static boolean testAddToGroup(Connection connection){
-        for(int i = 1; i <= 3000; i++){
+    public static boolean testAddToGroup(Connection connection) throws SQLException{
+        for(int i = minID; i <= minID+3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.addToGroup(connection, i, i)){
             }
             else{
-                return false;
+//                return false;
             }
         }
         return true;
@@ -161,9 +194,9 @@ public class Test {
     }
     
     public static boolean testEstablishFriendship(Connection connection) throws SQLException{
-        for(int i = 1; i <= 3000; i++){
+        for(int i = minID; i <= 3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.establishFriendship(connection, 201)){
+            if(FaceSpace.establishFriendship(connection, i)){
             }
             else{
                 return false;
@@ -172,10 +205,11 @@ public class Test {
         return true;
     }
     
-    public static boolean testInitiateFriendship(Connection connection) throws ParseException{
-        for(int i = 1; i <= 3000; i++){
+    public static boolean testInitiateFriendship(Connection connection) throws ParseException, SQLException{
+        
+        for(int i = minID+1; i <= 3000; i++){
                                 //System.out.println("createUser");
-            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, i, i+1)){
+            if(FaceSpace.initiateFriendship(connection, "2015-03-10", 0, i, minID)){
             }
 //            else{
 //                return false;
@@ -210,7 +244,7 @@ public class Test {
         return numRows;
     }
     
-    public static boolean testCreateUser(Connection connection){
+    public static boolean testCreateUser(Connection connection) throws SQLException{
         for(int i = 0; i < 3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.createUser(connection, "abcde", "abcde", "elkjlkj", "2012-02-24")){
@@ -225,7 +259,7 @@ public class Test {
     public static boolean testCreateGroup(Connection connection){
         for(int i = 0; i < 3000; i++){
                 //System.out.println("createGroup");
-            if(FaceSpace.createGroup(connection, "blah", "test", 30)){
+            if(FaceSpace.createGroup(connection, "blah", "test", i+11)){
             }
             else{
                 return false;
@@ -234,25 +268,25 @@ public class Test {
         return true;
     }
 
-    public static FaceSpace.User testSearchForUser(Connection connection) throws SQLException, IllegalAccessException, ParseException{
-        ArrayList<FaceSpace.User> results = null;
-        for(int i = 0; i < 100; i++){
+    public static void testSearchForUser(Connection connection) throws SQLException, IllegalAccessException, ParseException{
+        ArrayList<User> results = null;
+        for(int i = 0; i < 1; i++){
                 //System.out.println("createGroup");
             results = FaceSpace.searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
 
-            //print on the last iteration
-            if (i == 3000-1){
 
-//                System.out.println("The users found with the search string 'jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994' were:");
+            //print on the last iteration
+            if (i == 0){
+
+                System.out.println("\tThe users found with the search string 'jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994' were:");
                 if (results.size() == 0){
-//                    System.out.println("none");
+                    System.out.println("none");
                 }
                 for(int z = 0; z < results.size(); z++){
-//                    System.out.println(results.get(z).getFname() + " " + results.get(z).getLname() + " " + results.get(z).getUserID());
+                    System.out.println("\t" + results.get(z).getFname() + " " + results.get(z).getLname() + ", user number " + results.get(z).getUserID());
                 }
             }
         }
-        return results.get(results.size()-1);
     }
     
     public static String testTopMessagers(Connection connection) throws SQLException{
@@ -261,25 +295,96 @@ public class Test {
                 //System.out.println("createUser");
             list = FaceSpace.topMessagers(connection, 10, "2015/01/01" );
 
-            for(int j = 0; j < list.size(); j++){
-                    System.out.println(list.get(j));
-            }
+        }
+        return list.get(list.size()-1);
+    }
+    
+    public static void testDisplayFriends(Connection connection) throws SQLException{
+        ArrayList<Friendship> friends = null;
+        
+        for(int i=minID; i<=600; i++){
+            friends = FaceSpace.displayFriends(connection, 2);
+        }
+        for(Friendship friend : friends){
+            System.out.println("\tthe friendship between " 
+                    +  friend.getFriendOne() + " and " + friend.getFriendTwo() + " was established on " + friend.getFriendDate());
+        }
+
+
+    }
+    
+    public static String testDisplayMessages(Connection connection) throws SQLException{
+        ArrayList<String> list = null;
+        for(int i = 0; i <= 100; i++){
+                //System.out.println("createUser");
+            list = FaceSpace.displayMessages(connection, minID);
 
         }
         return list.get(list.size()-1);
     }
+    
+    public static String testDisplayNewMessages(Connection connection) throws SQLException{
+        ArrayList<String> list = null;
+        for(int i = 0; i <= 100; i++){
+                //System.out.println("createUser");
+            list = FaceSpace.displayNewMessages(connection, minID);
 
+        }
+        return list.get(list.size()-1);
+    }
+    
     public static boolean testThreeDegrees(Connection connection) throws SQLException{
         ArrayList<Integer> list = null;
         for(int i = 0; i <= 100; i++){
                 //System.out.println("createUser");
-            list = FaceSpace.threeDegrees(connection, 3, 12 );
+            list = FaceSpace.threeDegrees(connection, minID, minID+1 );
 
         }
         System.out.println("The middle ids between 3 and 12 are: ");
         for(int j = 0; j < list.size(); j++){
-                System.out.println(list.get(j));
+                System.out.println("\tID: " +list.get(j));
         }
         return list.size() != 0;
     }
+    
+    private static int findMinID(Connection connection) throws SQLException{
+        Statement statement = null;
+            ResultSet resultSet = null;
+            ArrayList<Integer> id = new ArrayList<Integer>();
+//            int id = 0;
+            try{
+                        String query = "SELECT * FROM Users";
+
+                        statement = connection.createStatement();
+                        resultSet = statement.executeQuery(query);
+                        
+
+                        if(resultSet != null){
+                                while (resultSet.next()){
+                                        int message = resultSet.getInt(6);
+                                        id.add(message);
+                                }
+                                resultSet.close();
+                                statement.close();
+                                
+                        }
+                        else{
+                            
+                        }
+
+                }catch(SQLException Ex) {
+//                        System.out.println("Error running the sample queries.  Machine Error: blerg" +
+//                           Ex.toString());
+                        resultSet.close();
+                        statement.close();
+                }
+            int[] blah = new int[id.size()];
+            for(int i=0; i<id.size(); i++){
+                blah[i] = id.get(i);
+            }
+            Arrays.sort(blah);
+            return blah[0];
+        }
+    
+
 }
