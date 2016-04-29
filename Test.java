@@ -269,7 +269,6 @@ public class Test {
         for(int i = 0; i < 100; i++){
                 //System.out.println("createGroup");
             results = FaceSpace.searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
-            System.out.println(i);
 
             //print on the last iteration
             if (i == 99){
