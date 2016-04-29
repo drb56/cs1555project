@@ -1,15 +1,16 @@
-
-//import static FaceSpace;
 import java.sql.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
-
+/*
+    Make sure to compile FaceSpace.java, User.java, and Friendship.java before
+        you run Test.java
+*/
 
 /**
  *
- * @author David Bickford
+ * @author David Bickford, Eli Friedman, John Kulp
  * @email drb56@pitt.edu
  */
 public class Test {
@@ -20,13 +21,10 @@ public class Test {
         String username, password;
         Scanner reader = new Scanner(System.in);
         System.out.println("Enter your Username: ");
-        username = "elf62";//reader.next();
+        username = reader.next();
         System.out.println("Enter your Password: ");
-        password = "3981019";//reader.next();
+        password = reader.next();
         
-        
-//        username = "drb56"; //This is your username in oracle
-//        password = "Robert098$"; //This is your password in oracle
 
 
         System.out.println("Registering DB..");
@@ -43,7 +41,7 @@ public class Test {
         try{
             DriverManager.registerDriver (new oracle.jdbc.driver.OracleDriver());
 
-            connection = DriverManager.getConnection(url, "drb56", "Robert098$");
+            connection = DriverManager.getConnection(url, username, password);
             connection.setAutoCommit(true);
         }
         catch(Exception e){
@@ -54,7 +52,6 @@ public class Test {
         
         try{
                 
-//                minID = 1;//findMinID(connection);
                 
                 System.out.println("Testing createUser: \n\tNumber of rows before stress test: " + printNumRows(connection, "Users"));
                 if(testCreateUser(connection)){
@@ -62,7 +59,7 @@ public class Test {
                 }
                 
                 minID = findMinID(connection);
-                System.out.println(minID);
+//                System.out.println(minID);
                 
                 System.out.println("Testing createGroup: \n\tNumber of rows before stress test: " + printNumRows(connection, "Groups"));
                 if(testCreateGroup(connection)){
@@ -96,7 +93,7 @@ public class Test {
                 
                 System.out.println("Testing searchForUser: \t");
                 testSearchForUser(connection);
-                //
+                
                 System.out.println("Testing displayFriends: \t");
                 testDisplayFriends(connection);
                 
@@ -145,7 +142,7 @@ public class Test {
     
     
     public static boolean testDropUser(Connection connection) throws SQLException{
-        for(int i = minID; i <= 3000; i++){
+        for(int i = minID; i <= minID+3000; i++){
                                 //System.out.println("createUser");
             if(FaceSpace.dropUser(connection, i)){
             }
@@ -269,13 +266,13 @@ public class Test {
 
     public static void testSearchForUser(Connection connection) throws SQLException, IllegalAccessException, ParseException{
         ArrayList<User> results = null;
-        for(int i = 0; i < 1; i++){
+        for(int i = 0; i < 100; i++){
                 //System.out.println("createGroup");
             results = FaceSpace.searchForUser(connection, "jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994");
-
+            System.out.println(i);
 
             //print on the last iteration
-            if (i == 0){
+            if (i == 99){
 
                 System.out.println("\tThe users found with the search string 'jim Omega Kent jones hello@yahoo.com dude 25 10-12-1994' were:");
                 if (results.size() == 0){
@@ -335,13 +332,14 @@ public class Test {
     
     public static boolean testThreeDegrees(Connection connection) throws SQLException{
         ArrayList<Integer> list = null;
-        for(int i = 1; i <= 100; i++){
+        int i;
+        for(i = 1; i <= 100; i++){
                 //System.out.println("createUser");
 //				System.out.println("got to for loop");
             list = FaceSpace.threeDegrees(connection, minID+1, minID+i+2 );
 //			System.out.println("list "+ i+" ="+ list);
         }
-        System.out.println("The middle ids between 3 and 12 are: ");
+        System.out.println("The middle ids between " + (minID+1) + " and " + (minID+i+2) + " are: ");
         for(int j = 0; j < list.size(); j++){
                 System.out.println("\tID: " +list.get(j));
         }

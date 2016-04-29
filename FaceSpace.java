@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Date;
+import java.util.Scanner;
 import oracle.jdbc.*; //needed by java for database connection and manipulation
 
 public class FaceSpace {
@@ -504,11 +505,11 @@ public class FaceSpace {
 			System.out.println("no users found!");
 			return new ArrayList<User>();
 		}
-        statement.close();
-        users.close();
-        conn.commit();
+            statement.close();
+            users.close();
+            conn.commit();
 
-		return foundUsers;
+            return foundUsers;
 
 	}
 
@@ -884,8 +885,11 @@ public class FaceSpace {
 	public static void main(String args[]) throws SQLException {
 
 		String username, password;
-		username = "drb56"; //This is your username in oracle
-		password = "Robert098$"; //This is your password in oracle
+                Scanner reader = new Scanner(System.in);
+                System.out.println("Enter your Username: ");
+                username = reader.next();
+                System.out.println("Enter your Password: ");
+                password = reader.next();
 		
 		try{
 			System.out.println("Registering DB..");
